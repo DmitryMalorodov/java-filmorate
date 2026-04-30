@@ -47,4 +47,8 @@ public class FilmController {
         log.info("Фильм с id {} отсутствует", newFilm.getId());
         throw new ValidationException(String.format("Фильм с id '%d' отсутствует", newFilm.getId()));
     }
+
+    public void cleanFilms() {
+        films.clear();
+    }
 }
