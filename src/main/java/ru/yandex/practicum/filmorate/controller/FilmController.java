@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,7 +18,6 @@ import static ru.yandex.practicum.filmorate.Helper.getNextId;
 @Slf4j
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
-    private static final int MAX_DESC_LENGTH = 200;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     @GetMapping
@@ -26,7 +26,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         validate(film);
         film.setId(getNextId(films.keySet()));
         films.put(film.getId(), film);
@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film newFilm) {
+    public Film update(@Valid @RequestBody Film newFilm) {
         validate(newFilm);
 
         Film oldFilm = films.get(newFilm.getId());
@@ -54,26 +54,10 @@ public class FilmController {
     }
 
     private void validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.info("Название фильма не может быть пустым");
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
-
-        if (film.getDescription() != null && film.getDescription().length() > MAX_DESC_LENGTH) {
-            log.info("Максимальная длина описания фильма — {} символов", MAX_DESC_LENGTH);
-            throw new ValidationException(String.format("Максимальная длина описания фильма — %d символов",
-                    MAX_DESC_LENGTH));
-        }
-
         if (LocalDate.parse(film.getReleaseDate()).isBefore(MIN_RELEASE_DATE)) {
             log.info("Дата релиза фильма не может быть раньше {}", MIN_RELEASE_DATE);
             throw new ValidationException(String.format("Дата релиза фильма не может быть раньше %s",
                     MIN_RELEASE_DATE));
-        }
-
-        if (film.getDuration() <= 0) {
-            log.info("Продолжительность фильма должна быть положительным числом");
-            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
     }
 }

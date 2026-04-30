@@ -1,11 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class User {
     private Long id;
+    @NotNull(message = "Электронная почта не может быть null")
+    @NotBlank(message = "Электронная почта не может быть пустой")
+    @Email(message = "Электронная почта не соответствует требуему формату")
     private String email;
+    @NotNull(message = "Логин не может быть null")
+    @NotBlank(message = "Логин не может быть пустой")
     private String login;
     private String name;
     private String birthday;
