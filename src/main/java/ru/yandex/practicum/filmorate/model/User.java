@@ -2,25 +2,28 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+import static ru.yandex.practicum.filmorate.messages.UserValidationMessages.*;
+
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     private Long id;
-    @NotNull(message = "Электронная почта не может быть null")
-    @NotBlank(message = "Электронная почта не может быть пустой")
-    @Email(message = "Электронная почта не соответствует требуему формату")
+    @NotBlank(message = EMAIL_BLANK_MESSAGE)
+    @Email(message = EMAIL_NOT_CORRECT_MESSAGE)
     private String email;
-    @NotNull(message = "Логин не может быть null")
-    @NotBlank(message = "Логин не может быть пустой")
+    @NotBlank(message = LOGIN_BLANK_MESSAGE)
     private String login;
     private String name;
-    @PastOrPresent(message = "Дата рождения не может быть в будущем")
+    @PastOrPresent(message = BIRTHDAY_COULD_NOT_BE_IN_FUTURE_MESSAGE)
     private LocalDate birthday;
 }
