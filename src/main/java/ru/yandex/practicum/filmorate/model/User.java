@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import static ru.yandex.practicum.filmorate.messages.UserValidationMessages.*;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {

@@ -56,4 +56,8 @@ public class UserController {
             oldUser.setName(newUser.getName());
         }
     }
+
+    public void cleanUsers() {
+        users.clear();
+    }
 }

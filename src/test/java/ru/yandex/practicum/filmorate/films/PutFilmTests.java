@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.films;
 
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,13 +8,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.*;
 import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.DURATION_MUST_BE_POSITIVE_MESSAGE;
+import static ru.yandex.practicum.filmorate.films.FilmData.*;
 
 @DisplayName("Проверка изменения фильмов")
 public class PutFilmTests extends FilmTest {
 
     @Test
     void checkChangeFilm() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
 
         changeFilm(newFilm)
                 .andExpect(status().isOk())
@@ -28,7 +28,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkNameNullValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setName(filmNameNull.getName());
 
         checkValidationError(changeFilm(newFilm), NAME_BLANK_MESSAGE);
@@ -36,7 +36,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkNameBlankValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setName(filmNameBlank.getName());
 
         checkValidationError(changeFilm(newFilm), NAME_BLANK_MESSAGE);
@@ -44,7 +44,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDescriptionNullValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDescription(filmDescriptionNull.getDescription());
 
         changeFilm(newFilm)
@@ -53,7 +53,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDescriptionBlankValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDescription(filmDescriptionBlank.getDescription());
 
         changeFilm(newFilm)
@@ -62,7 +62,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDescription200LengthValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDescription(filmDescription200Length.getDescription());
 
         changeFilm(newFilm)
@@ -71,7 +71,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDescription201LengthValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDescription(filmDescription201Length.getDescription());
 
         checkValidationError(changeFilm(newFilm), DESCRIPTION_MAX_LENGTH_MESSAGE);
@@ -79,7 +79,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkReleaseDateTooSoonValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setReleaseDate(filmWithReleaseTooSoon.getReleaseDate());
 
         checkValidationError(changeFilm(newFilm), RELEASE_DATE_MIN_MESSAGE);
@@ -87,7 +87,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkReleaseDateCorrectValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setReleaseDate(filmWithReleaseCorrect.getReleaseDate());
 
         changeFilm(newFilm)
@@ -96,7 +96,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDurationNegativeValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDuration(filmWithDurationNegative.getDuration());
 
         checkValidationError(changeFilm(newFilm), DURATION_MUST_BE_POSITIVE_MESSAGE);
@@ -104,7 +104,7 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDurationZeroValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDuration(filmWithDurationZero.getDuration());
 
         checkValidationError(changeFilm(newFilm), DURATION_MUST_BE_POSITIVE_MESSAGE);
@@ -112,23 +112,16 @@ public class PutFilmTests extends FilmTest {
 
     @Test
     void checkDurationPositiveValidation() throws Exception {
-        Film newFilm = prepareReqBody();
+        Film newFilm = prepareReqBody(film2);
         newFilm.setDuration(filmWithDurationPositive.getDuration());
 
         changeFilm(newFilm)
                 .andExpect(status().isOk());
     }
 
-    private Long createFilmAndGetId() throws Exception {
-        return JsonPath.parse(createFilm(film)
-                .andReturn()
-                .getResponse()
-                .getContentAsString()).read("$.id", Long.class);
-    }
-
-    private Film prepareReqBody() throws Exception {
-        return film2.toBuilder()
-                .id(createFilmAndGetId())
+    private Film prepareReqBody(Film film) throws Exception {
+        return film.toBuilder()
+                .id(getIdFromObject(createFilm(film)))
                 .build();
     }
 }

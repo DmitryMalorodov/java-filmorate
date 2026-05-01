@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.yandex.practicum.filmorate.films.FilmData.*;
 
 @DisplayName("Проверка получения фильмов")
 public class GetFilmTests extends FilmTest {

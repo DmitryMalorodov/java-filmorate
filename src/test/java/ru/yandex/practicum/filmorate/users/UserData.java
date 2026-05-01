@@ -26,13 +26,6 @@ public class UserData {
             .birthday(LocalDate.of(1990, 10, 20))
             .build();
 
-    static final User userEmailBlank = User.builder()
-            .name("Имя 2")
-            .login("Логин 2")
-            .email(" ")
-            .birthday(LocalDate.of(1990, 10, 20))
-            .build();
-
     static final User userEmailNotCorrect = User.builder()
             .name("Имя 2")
             .login("Логин 2")

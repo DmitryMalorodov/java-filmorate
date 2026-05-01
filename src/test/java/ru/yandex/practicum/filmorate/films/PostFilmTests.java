@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.*;
+import static ru.yandex.practicum.filmorate.films.FilmData.*;
 
 @DisplayName("Проверка добавления фильмов")
 public class PostFilmTests extends FilmTest {

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.films;
+package ru.yandex.practicum.filmorate.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,18 +8,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.MainTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.model.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
-@WebMvcTest(FilmController.class)
-public class FilmTest extends MainTest {
-    static final String ENDPOINT = "/films";
+@WebMvcTest(UserController.class)
+public class UserTest extends MainTest {
+    static final String ENDPOINT = "/users";
 
     @Autowired
-    FilmController filmController;
+    UserController userController;
 
     @Autowired
     MockMvc mockMvc;
@@ -29,18 +29,18 @@ public class FilmTest extends MainTest {
 
     @BeforeEach
     void setUp() {
-        filmController.cleanFilms();
+        userController.cleanUsers();
     }
 
-    ResultActions createFilm(Film film) throws Exception {
+    ResultActions createUser(User user) throws Exception {
         return mockMvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(film)));
+                .content(objectMapper.writeValueAsString(user)));
     }
 
-    ResultActions changeFilm(Film film) throws Exception {
+    ResultActions changeUser(User user) throws Exception {
         return mockMvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(film)));
+                .content(objectMapper.writeValueAsString(user)));
     }
 }
