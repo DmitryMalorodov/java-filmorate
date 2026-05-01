@@ -11,6 +11,9 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FilmController.class)
 public class FilmTest extends FilmData {
@@ -34,5 +37,17 @@ public class FilmTest extends FilmData {
         return mockMvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)));
+    }
+
+    ResultActions changeFilm(Film film) throws Exception {
+        return mockMvc.perform(put(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)));
+    }
+
+    void checkValidationError(ResultActions response, String expMessage) throws Exception {
+        response
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(expMessage));
     }
 }

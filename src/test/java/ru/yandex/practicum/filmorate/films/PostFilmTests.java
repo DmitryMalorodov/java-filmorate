@@ -23,16 +23,12 @@ public class PostFilmTests extends FilmTest {
 
     @Test
     void checkNameNullValidation() throws Exception {
-        createFilm(filmNameNull)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(NAME_BLANK_MESSAGE));
+        checkValidationError(createFilm(filmNameNull), NAME_BLANK_MESSAGE);
     }
 
     @Test
     void checkNameBlankValidation() throws Exception {
-        createFilm(filmNameBlank)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(NAME_BLANK_MESSAGE));
+        checkValidationError(createFilm(filmNameBlank), NAME_BLANK_MESSAGE);
     }
 
     @Test
@@ -55,16 +51,12 @@ public class PostFilmTests extends FilmTest {
 
     @Test
     void checkDescription201LengthValidation() throws Exception {
-        createFilm(filmDescription201Length)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(DESCRIPTION_MAX_LENGTH_MESSAGE));
+        checkValidationError(createFilm(filmDescription201Length), DESCRIPTION_MAX_LENGTH_MESSAGE);
     }
 
     @Test
     void checkReleaseDateTooSoonValidation() throws Exception {
-        createFilm(filmWithReleaseTooSoon)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(RELEASE_DATE_MIN_MESSAGE));
+        checkValidationError(createFilm(filmWithReleaseTooSoon), RELEASE_DATE_MIN_MESSAGE);
     }
 
     @Test
@@ -75,16 +67,12 @@ public class PostFilmTests extends FilmTest {
 
     @Test
     void checkDurationNegativeValidation() throws Exception {
-        createFilm(filmWithDurationNegative)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(DURATION_MUST_BE_POSITIVE_MESSAGE));
+        checkValidationError(createFilm(filmWithDurationNegative), DURATION_MUST_BE_POSITIVE_MESSAGE);
     }
 
     @Test
     void checkDurationZeroValidation() throws Exception {
-        createFilm(filmWithDurationZero)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(DURATION_MUST_BE_POSITIVE_MESSAGE));
+        checkValidationError(createFilm(filmWithDurationZero), DURATION_MUST_BE_POSITIVE_MESSAGE);
     }
 
     @Test

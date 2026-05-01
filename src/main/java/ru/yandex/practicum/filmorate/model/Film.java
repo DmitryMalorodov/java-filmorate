@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.*;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
