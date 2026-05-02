@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.marker.OnCreate;
+import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -15,6 +17,7 @@ import static ru.yandex.practicum.filmorate.Helper.getNextId;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
@@ -24,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public User create(@Validated(OnCreate.class) @RequestBody User user) {
         user.setId(getNextId(users.keySet()));
         setName(user, user);
         users.put(user.getId(), user);
@@ -33,12 +36,12 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser) {
+    public User update(@Validated(OnUpdate.class) @RequestBody User newUser) {
         User oldUser = users.get(newUser.getId());
         log.info("Пользователь для редактирования {}", oldUser);
         if (oldUser != null) {
-            oldUser.setEmail(newUser.getEmail());
-            oldUser.setLogin(newUser.getLogin());
+            if (newUser.getEmail() != null && !newUser.getEmail().isBlank()) oldUser.setEmail(newUser.getEmail());
+            if (newUser.getLogin() != null && !newUser.getLogin().isBlank()) oldUser.setLogin(newUser.getLogin());
             oldUser.setBirthday(newUser.getBirthday());
             setName(oldUser, newUser);
             log.info("Отредактированный пользователь {}", oldUser);

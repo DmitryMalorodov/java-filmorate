@@ -32,7 +32,9 @@ public class PutUserTests extends UserTest {
         User newUser = prepareReqBody(user);
         newUser.setEmail(null);
 
-        checkValidationError(changeUser(newUser), EMAIL_BLANK_MESSAGE);
+        changeUser(newUser)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
     }
 
     @Test
@@ -48,7 +50,9 @@ public class PutUserTests extends UserTest {
         User newUser = prepareReqBody(user);
         newUser.setLogin(null);
 
-        checkValidationError(changeUser(newUser), LOGIN_BLANK_MESSAGE);
+        changeUser(newUser)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.login").value(user.getLogin()));
     }
 
     @Test
@@ -56,7 +60,9 @@ public class PutUserTests extends UserTest {
         User newUser = prepareReqBody(user);
         newUser.setLogin(" ");
 
-        checkValidationError(changeUser(newUser), LOGIN_BLANK_MESSAGE);
+        changeUser(newUser)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.login").value(user.getLogin()));
     }
 
     @Test
@@ -94,6 +100,14 @@ public class PutUserTests extends UserTest {
         newUser.setBirthday(LocalDate.now().plusDays(1));
 
         checkValidationError(changeUser(newUser), BIRTHDAY_COULD_NOT_BE_IN_FUTURE_MESSAGE);
+    }
+
+    @Test
+    void checkIdNullValidation() throws Exception {
+        User newUser = prepareReqBody(user);
+        newUser.setId(null);
+
+        checkValidationError(changeUser(newUser), ID_NULL_MESSAGE);
     }
 
     private User prepareReqBody(User user) throws Exception {

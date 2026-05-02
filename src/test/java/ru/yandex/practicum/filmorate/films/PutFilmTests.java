@@ -31,7 +31,9 @@ public class PutFilmTests extends FilmTest {
         Film newFilm = prepareReqBody(film);
         newFilm.setName(null);
 
-        checkValidationError(changeFilm(newFilm), NAME_BLANK_MESSAGE);
+        changeFilm(newFilm)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Имя фильма"));
     }
 
     @Test
@@ -39,7 +41,9 @@ public class PutFilmTests extends FilmTest {
         Film newFilm = prepareReqBody(film);
         newFilm.setName(" ");
 
-        checkValidationError(changeFilm(newFilm), NAME_BLANK_MESSAGE);
+        changeFilm(newFilm)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Имя фильма"));
     }
 
     @Test
@@ -117,6 +121,14 @@ public class PutFilmTests extends FilmTest {
 
         changeFilm(newFilm)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkIdNullValidation() throws Exception {
+        Film newFilm = prepareReqBody(film);
+        newFilm.setId(null);
+
+        checkValidationError(changeFilm(newFilm), ID_NULL_MESSAGE);
     }
 
     private Film prepareReqBody(Film film) throws Exception {

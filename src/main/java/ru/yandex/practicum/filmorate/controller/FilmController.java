@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.marker.OnCreate;
+import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
@@ -15,6 +17,7 @@ import static ru.yandex.practicum.filmorate.Helper.getNextId;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
 
@@ -24,7 +27,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public Film create(@Validated(OnCreate.class) @RequestBody Film film) {
         film.setId(getNextId(films.keySet()));
         films.put(film.getId(), film);
         log.info("Добавлен фильм {}", film);
@@ -32,11 +35,11 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm) {
+    public Film update(@Validated(OnUpdate.class) @RequestBody Film newFilm) {
         Film oldFilm = films.get(newFilm.getId());
         log.info("Фильм для редактирования {}", oldFilm);
         if (oldFilm != null) {
-            oldFilm.setName(newFilm.getName());
+            if (newFilm.getName() != null && !newFilm.getName().isBlank()) oldFilm.setName(newFilm.getName());
             oldFilm.setDescription(newFilm.getDescription());
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
             oldFilm.setDuration(newFilm.getDuration());

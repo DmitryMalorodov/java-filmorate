@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeDate;
+import ru.yandex.practicum.filmorate.marker.OnCreate;
+import ru.yandex.practicum.filmorate.marker.OnUpdate;
 
 import java.time.LocalDate;
 
@@ -18,13 +21,14 @@ import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
+    @NotNull(groups = OnUpdate.class, message = ID_NULL_MESSAGE)
     private Long id;
-    @NotBlank(message = NAME_BLANK_MESSAGE)
+    @NotBlank(groups = OnCreate.class, message = NAME_BLANK_MESSAGE)
     private String name;
-    @Size(max = 200, message = DESCRIPTION_MAX_LENGTH_MESSAGE)
+    @Size(groups = {OnCreate.class, OnUpdate.class}, max = 200, message = DESCRIPTION_MAX_LENGTH_MESSAGE)
     private String description;
-    @NotBeforeDate(value = RELEASE_DATE_MIN, message = RELEASE_DATE_MIN_MESSAGE)
+    @NotBeforeDate(groups = {OnCreate.class, OnUpdate.class}, value = RELEASE_DATE_MIN, message = RELEASE_DATE_MIN_MESSAGE)
     private LocalDate releaseDate;
-    @Positive(message = DURATION_MUST_BE_POSITIVE_MESSAGE)
+    @Positive(groups = {OnCreate.class, OnUpdate.class}, message = DURATION_MUST_BE_POSITIVE_MESSAGE)
     private Integer duration;
 }

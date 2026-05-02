@@ -77,4 +77,11 @@ public class PostUserTests extends UserTest {
         User userBirthdayFuture = user.toBuilder().birthday(LocalDate.now().plusDays(1)).build();
         checkValidationError(createUser(userBirthdayFuture), BIRTHDAY_COULD_NOT_BE_IN_FUTURE_MESSAGE);
     }
+
+    @Test
+    void checkIdNullValidation() throws Exception {
+        User userBirthdayNow = user.toBuilder().id(null).build();
+        createUser(userBirthdayNow)
+                .andExpect(status().isOk());
+    }
 }

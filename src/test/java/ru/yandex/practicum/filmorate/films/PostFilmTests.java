@@ -93,4 +93,11 @@ public class PostFilmTests extends FilmTest {
         createFilm(filmWithDurationPositive)
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void checkIdNullValidation() throws Exception {
+        Film filmWithoutId = film.toBuilder().id(null).build();
+        createFilm(filmWithoutId)
+                .andExpect(status().isOk());
+    }
 }
