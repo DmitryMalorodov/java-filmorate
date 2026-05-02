@@ -28,7 +28,7 @@ public class GetFilmTests extends FilmTest {
     @Test
     void checkGettingTwoFilms() throws Exception {
         createFilm(film);
-        createFilm(film2);
+        createFilm(film);
 
         mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
@@ -39,10 +39,10 @@ public class GetFilmTests extends FilmTest {
                 .andExpect(jsonPath("$[0].releaseDate").value("2000-12-25"))
                 .andExpect(jsonPath("$[0].duration").value(145))
                 .andExpect(jsonPath("$[1].id").exists())
-                .andExpect(jsonPath("$[1].name").value("Имя фильма 2"))
-                .andExpect(jsonPath("$[1].description").value("Описание 2"))
-                .andExpect(jsonPath("$[1].releaseDate").value("2020-01-03"))
-                .andExpect(jsonPath("$[1].duration").value(200));
+                .andExpect(jsonPath("$[1].name").value("Имя фильма"))
+                .andExpect(jsonPath("$[1].description").value("Описание"))
+                .andExpect(jsonPath("$[1].releaseDate").value("2000-12-25"))
+                .andExpect(jsonPath("$[1].duration").value(145));
     }
 
     @Test

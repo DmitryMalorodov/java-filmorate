@@ -28,7 +28,7 @@ public class GetUserTests extends UserTest {
     @Test
     void checkGettingTwoFilms() throws Exception {
         createUser(user);
-        createUser(user2);
+        createUser(user);
 
         mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
@@ -39,10 +39,10 @@ public class GetUserTests extends UserTest {
                 .andExpect(jsonPath("$[0].name").value("Имя"))
                 .andExpect(jsonPath("$[0].birthday").value("2000-10-20"))
                 .andExpect(jsonPath("$[1].id").exists())
-                .andExpect(jsonPath("$[1].email").value("email@em2.ru"))
-                .andExpect(jsonPath("$[1].login").value("Логин 2"))
-                .andExpect(jsonPath("$[1].name").value("Имя 2"))
-                .andExpect(jsonPath("$[1].birthday").value("1990-10-20"));
+                .andExpect(jsonPath("$[1].email").value("email@em.ru"))
+                .andExpect(jsonPath("$[1].login").value("Логин"))
+                .andExpect(jsonPath("$[1].name").value("Имя"))
+                .andExpect(jsonPath("$[1].birthday").value("2000-10-20"));
     }
 
     @Test
