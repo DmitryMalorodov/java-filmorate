@@ -21,6 +21,11 @@ public class FilmController {
         this.filmService = filmService;
     }
 
+    @GetMapping("/{id}")
+    public Film findFilmById(@PathVariable final Long id) {
+        return filmService.findFilmById(id);
+    }
+
     @GetMapping
     public Collection<Film> findAll() {
         return filmService.findAll();

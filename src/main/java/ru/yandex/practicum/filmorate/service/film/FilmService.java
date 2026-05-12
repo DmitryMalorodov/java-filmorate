@@ -66,7 +66,7 @@ public class FilmService {
                 .toList();
     }
 
-    private Film findFilmById(Long filmId) {
+    public Film findFilmById(Long filmId) {
         return filmStorage.findFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
     }

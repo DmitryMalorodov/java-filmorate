@@ -20,6 +20,11 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public User findUserById(Long userId) {
+        return userStorage.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+    }
+
     public Collection<User> findAll() {
         return userStorage.findAll();
     }
@@ -65,11 +70,6 @@ public class UserService {
                 .filter(friendsIdsOfUser2::contains)
                 .map(this::findUserById)
                 .toList();
-    }
-
-    public User findUserById(Long userId) {
-        return userStorage.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     private void setName(User oldUser, User newUser) {
