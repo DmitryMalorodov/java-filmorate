@@ -45,14 +45,14 @@ public class FilmService {
 
     }
 
-    public void addLike(Long userId, Long filmId) {
+    public void addLikeToFilm(Long userId, Long filmId) {
         User user = userService.findUserById(userId);
         Film film = findFilmById(filmId);
 
         film.getLikesUsersId().add(user.getId());
     }
 
-    public void deleteLike(Long userId, Long filmId) {
+    public void deleteLikeFromFilm(Long userId, Long filmId) {
         User user = userService.findUserById(userId);
         Film film = findFilmById(filmId);
 
