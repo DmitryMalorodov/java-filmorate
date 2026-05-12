@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.Collection;
 
@@ -14,25 +14,25 @@ import java.util.Collection;
 @RequestMapping("/users")
 @Validated
 public class UserController {
-    private final UserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return userStorage.findAll();
+        return userService.findAll();
     }
 
     @PostMapping
     public User create(@Validated(OnCreate.class) @RequestBody User user) {
-        return userStorage.create(user);
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@Validated(OnUpdate.class) @RequestBody User newUser) {
-        return userStorage.update(newUser);
+        return userService.update(newUser);
     }
 }

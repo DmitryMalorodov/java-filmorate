@@ -9,12 +9,15 @@ import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.MainTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
-@WebMvcTest({FilmController.class, InMemoryFilmStorage.class})
+@WebMvcTest({FilmController.class, FilmService.class, UserService.class, UserStorage.class, InMemoryFilmStorage.class})
 public class FilmTest extends MainTest {
     static final String ENDPOINT = "/films";
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
 
@@ -14,25 +14,25 @@ import java.util.Collection;
 @RequestMapping("/films")
 @Validated
 public class FilmController {
-    private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmStorage.findAll();
+        return filmService.findAll();
     }
 
     @PostMapping
     public Film create(@Validated(OnCreate.class) @RequestBody Film film) {
-        return filmStorage.create(film);
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Validated(OnUpdate.class) @RequestBody Film newFilm) {
-        return filmStorage.update(newFilm);
+        return filmService.update(newFilm);
     }
 }
