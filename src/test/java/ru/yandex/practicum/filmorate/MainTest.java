@@ -1,11 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
 import com.jayway.jsonpath.JsonPath;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class MainTest {
 
     protected void checkValidationError(ResultActions response, String expMessage) throws Exception {
