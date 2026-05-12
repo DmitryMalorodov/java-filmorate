@@ -40,4 +40,14 @@ public class UserController {
     public User update(@Validated(OnUpdate.class) @RequestBody User newUser) {
         return userService.update(newUser);
     }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addToFriends(@PathVariable final Long id, @PathVariable final Long friendId) {
+        userService.addUserToFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFromFriends(@PathVariable final Long id, @PathVariable final Long friendId) {
+        userService.deleteUserFromFriends(id, friendId);
+    }
 }

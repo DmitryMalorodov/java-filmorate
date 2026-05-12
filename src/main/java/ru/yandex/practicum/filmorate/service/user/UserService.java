@@ -46,20 +46,20 @@ public class UserService {
         return oldUser;
     }
 
-    public void addUserToFriends(Long idOfUserWhoAdd, Long idOfUserToAdd) {
-        User userToAdd = findUserById(idOfUserToAdd);
-        User userWhoAdd = findUserById(idOfUserWhoAdd);
+    public void addUserToFriends(Long userId, Long friendId) {
+        User friend = findUserById(friendId);
+        User user = findUserById(userId);
 
-        userWhoAdd.getFriendsIds().add(userToAdd.getId());
-        userToAdd.getFriendsIds().add(userWhoAdd.getId());
+        friend.getFriendsIds().add(user.getId());
+        user.getFriendsIds().add(friend.getId());
     }
 
-    public void deleteUserFromFriends(Long idOfUserWhoDelete, Long idOfUserForDelete) {
-        User userToAdd = findUserById(idOfUserForDelete);
-        User userWhoAdd = findUserById(idOfUserWhoDelete);
+    public void deleteUserFromFriends(Long userId, Long friendId) {
+        User friend = findUserById(friendId);
+        User user = findUserById(userId);
 
-        userWhoAdd.getFriendsIds().remove(userToAdd.getId());
-        userToAdd.getFriendsIds().remove(userWhoAdd.getId());
+        user.getFriendsIds().remove(friend.getId());
+        friend.getFriendsIds().remove(user.getId());
     }
 
     public Collection<User> getCommonFriendsList(Long idOfUser1, Long idOfUser2) {
