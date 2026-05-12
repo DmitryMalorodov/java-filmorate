@@ -32,13 +32,23 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Validated(OnCreate.class) @RequestBody User user) {
+    public User create(@Validated(OnCreate.class) @RequestBody final User user) {
         return userService.create(user);
     }
 
     @PutMapping
-    public User update(@Validated(OnUpdate.class) @RequestBody User newUser) {
+    public User update(@Validated(OnUpdate.class) @RequestBody final User newUser) {
         return userService.update(newUser);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriendsList(@PathVariable final Long id, @PathVariable final Long otherId) {
+        return userService.getCommonFriendsList(id, otherId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> getUserFriendsList(@PathVariable final Long id) {
+        return userService.getUserFriendsList(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

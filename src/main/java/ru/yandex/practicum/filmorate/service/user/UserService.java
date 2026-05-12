@@ -62,12 +62,19 @@ public class UserService {
         friend.getFriendsIds().remove(user.getId());
     }
 
-    public Collection<User> getCommonFriendsList(Long idOfUser1, Long idOfUser2) {
-        Set<Long> friendsIdsOfUser1 = findUserById(idOfUser1).getFriendsIds();
-        Set<Long> friendsIdsOfUser2 = findUserById(idOfUser2).getFriendsIds();
+    public Collection<User> getUserFriendsList(Long userId) {
+        Set<Long> userFriendsIds = findUserById(userId).getFriendsIds();
+        return userFriendsIds.stream()
+                .map(this::findUserById)
+                .toList();
+    }
 
-        return friendsIdsOfUser1.stream()
-                .filter(friendsIdsOfUser2::contains)
+    public Collection<User> getCommonFriendsList(Long userId, Long otherUserId) {
+        Set<Long> friendsIdsOfUser = findUserById(userId).getFriendsIds();
+        Set<Long> friendsIdsOfOtherUser = findUserById(otherUserId).getFriendsIds();
+
+        return friendsIdsOfUser.stream()
+                .filter(friendsIdsOfOtherUser::contains)
                 .map(this::findUserById)
                 .toList();
     }

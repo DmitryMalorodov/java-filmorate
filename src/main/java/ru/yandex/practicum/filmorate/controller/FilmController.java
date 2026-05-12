@@ -32,12 +32,12 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@Validated(OnCreate.class) @RequestBody Film film) {
+    public Film create(@Validated(OnCreate.class) @RequestBody final Film film) {
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film update(@Validated(OnUpdate.class) @RequestBody Film newFilm) {
+    public Film update(@Validated(OnUpdate.class) @RequestBody final Film newFilm) {
         return filmService.update(newFilm);
     }
 }
