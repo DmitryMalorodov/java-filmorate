@@ -24,6 +24,11 @@ public class FilmService {
         this.userService = userService;
     }
 
+    public Film findFilmById(Long filmId) {
+        return filmStorage.findFilmById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
+    }
+
     public Collection<Film> findAll() {
         return filmStorage.findAll();
     }
@@ -64,10 +69,5 @@ public class FilmService {
                 .sorted(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed())
                 .limit(limit)
                 .toList();
-    }
-
-    public Film findFilmById(Long filmId) {
-        return filmStorage.findFilmById(filmId)
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
     }
 }
