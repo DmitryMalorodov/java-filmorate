@@ -25,11 +25,13 @@ public class FilmService {
     }
 
     public Film findFilmById(Long filmId) {
+        log.info("Поиск фильма по id - {}", filmId);
         return filmStorage.findFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
     }
 
     public Collection<Film> findAll() {
+        log.info("Получение списка всех фильмов");
         return filmStorage.findAll();
     }
 
@@ -54,6 +56,7 @@ public class FilmService {
         User user = userService.findUserById(userId);
         Film film = findFilmById(filmId);
 
+        log.info("Добавление лайка пользователем с id - {} к фильму с id - {}", userId, filmId);
         film.getLikesUsersId().add(user.getId());
     }
 
@@ -61,10 +64,12 @@ public class FilmService {
         User user = userService.findUserById(userId);
         Film film = findFilmById(filmId);
 
+        log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
         film.getLikesUsersId().remove(user.getId());
     }
 
     public Collection<Film> getMostPopularFilmsByLikes(int limit) {
+        log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed())
                 .limit(limit)

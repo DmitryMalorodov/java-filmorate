@@ -21,11 +21,13 @@ public class UserService {
     }
 
     public User findUserById(Long userId) {
+        log.info("Поиск пользователя по id - {}", userId);
         return userStorage.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     public Collection<User> findAll() {
+        log.info("Получение списка всех пользователей");
         return userStorage.findAll();
     }
 
@@ -50,6 +52,7 @@ public class UserService {
         User friend = findUserById(friendId);
         User user = findUserById(userId);
 
+        log.info("Добавление в друзья пользователей с id - {}, {}", userId, friendId);
         friend.getFriendsIds().add(user.getId());
         user.getFriendsIds().add(friend.getId());
     }
@@ -58,12 +61,14 @@ public class UserService {
         User friend = findUserById(friendId);
         User user = findUserById(userId);
 
+        log.info("Удаление из друзей пользователей с id - {}, {}", userId, friendId);
         user.getFriendsIds().remove(friend.getId());
         friend.getFriendsIds().remove(user.getId());
     }
 
     public Collection<User> getUserFriendsList(Long userId) {
         Set<Long> userFriendsIds = findUserById(userId).getFriendsIds();
+        log.info("Получение списка друзей пользователя с id - {}", userId);
         return userFriendsIds.stream()
                 .map(this::findUserById)
                 .toList();
@@ -73,6 +78,7 @@ public class UserService {
         Set<Long> friendsIdsOfUser = findUserById(userId).getFriendsIds();
         Set<Long> friendsIdsOfOtherUser = findUserById(otherUserId).getFriendsIds();
 
+        log.info("Получение списка общих друзей пользователей с id - {}, {}", userId, otherUserId);
         return friendsIdsOfUser.stream()
                 .filter(friendsIdsOfOtherUser::contains)
                 .map(this::findUserById)
