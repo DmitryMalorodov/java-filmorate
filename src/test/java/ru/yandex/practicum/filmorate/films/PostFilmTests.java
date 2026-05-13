@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.messages.FilmValidationMessages.*;
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.*;
 import static ru.yandex.practicum.filmorate.films.FilmData.*;
 
 @DisplayName("Проверка добавления фильмов")

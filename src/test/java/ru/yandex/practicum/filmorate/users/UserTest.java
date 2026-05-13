@@ -14,11 +14,10 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.USERS;
 
 @WebMvcTest({UserController.class, UserService.class, InMemoryUserStorage.class})
 public class UserTest extends MainTest {
-    static final String ENDPOINT = "/users";
-
     @Autowired
     MockMvc mockMvc;
 
@@ -26,13 +25,13 @@ public class UserTest extends MainTest {
     ObjectMapper objectMapper;
 
     ResultActions createUser(User user) throws Exception {
-        return mockMvc.perform(post(ENDPOINT)
+        return mockMvc.perform(post(USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)));
     }
 
     ResultActions changeUser(User user) throws Exception {
-        return mockMvc.perform(put(ENDPOINT)
+        return mockMvc.perform(put(USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)));
     }

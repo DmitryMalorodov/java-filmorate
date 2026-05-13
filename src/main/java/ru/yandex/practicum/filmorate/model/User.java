@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.messages.UserValidationMessages.*;
+import static ru.yandex.practicum.filmorate.constant.message.UserValidationMessages.*;
 
 @Data
 @Builder(toBuilder = true)

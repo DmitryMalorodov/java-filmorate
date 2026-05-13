@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.messages;
+package ru.yandex.practicum.filmorate.constant.message;
 
 public class FilmValidationMessages extends ValidationMessages {
     public static final String NAME_BLANK_MESSAGE = "Название фильма не может быть пустым";
