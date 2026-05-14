@@ -6,49 +6,31 @@ import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.films.FilmData.*;
+import static ru.yandex.practicum.filmorate.constant.endpoint.FilmEndpoints.FILMS_ID;
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.FILM_NOT_FOUND_MESSAGE;
+import static ru.yandex.practicum.filmorate.films.FilmData.film;
 
-@DisplayName("Проверка получения фильмов")
+@DisplayName("Проверка получения фильма")
 public class GetFilmTests extends FilmTest {
 
     @Test
     void checkGettingOneFilm() throws Exception {
-        createFilm(film);
+        Long filmId = getIdFromObject(createFilm(film));
 
-        mockMvc.perform(get(ENDPOINT))
+        mockMvc.perform(get(FILMS_ID, filmId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].name").value("Имя фильма"))
-                .andExpect(jsonPath("$[0].description").value("Описание"))
-                .andExpect(jsonPath("$[0].releaseDate").value("2000-12-25"))
-                .andExpect(jsonPath("$[0].duration").value(145));
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.name").value("Имя фильма"))
+                .andExpect(jsonPath("$.description").value("Описание"))
+                .andExpect(jsonPath("$.releaseDate").value("2000-12-25"))
+                .andExpect(jsonPath("$.duration").value(145));
     }
 
     @Test
-    void checkGettingTwoFilms() throws Exception {
-        createFilm(film);
-        createFilm(film);
-
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].name").value("Имя фильма"))
-                .andExpect(jsonPath("$[0].description").value("Описание"))
-                .andExpect(jsonPath("$[0].releaseDate").value("2000-12-25"))
-                .andExpect(jsonPath("$[0].duration").value(145))
-                .andExpect(jsonPath("$[1].id").exists())
-                .andExpect(jsonPath("$[1].name").value("Имя фильма"))
-                .andExpect(jsonPath("$[1].description").value("Описание"))
-                .andExpect(jsonPath("$[1].releaseDate").value("2000-12-25"))
-                .andExpect(jsonPath("$[1].duration").value(145));
-    }
-
-    @Test
-    void checkGettingNoOneFilm() throws Exception {
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+    void checkGetDoesNotExistFilm() throws Exception {
+        Long filmNotExistId = 1L;
+        mockMvc.perform(get(FILMS_ID, filmNotExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(String.format(FILM_NOT_FOUND_MESSAGE, filmNotExistId)));
     }
 }

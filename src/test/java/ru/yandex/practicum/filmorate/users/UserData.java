@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 
 public class UserData {
-    static final User user = User.builder()
+    public static final User user = User.builder()
             .name("Имя")
             .login("Логин")
             .email("email@em.ru")
