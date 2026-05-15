@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.films;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -26,6 +27,13 @@ public class GetPopularFilmsTests extends FilmTest {
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[2].id").value(3));
+    }
+
+    @Test
+    void checkNegativeValidation() throws Exception {
+        mockMvc.perform(get(FILMS_POPULAR).param("count", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE));
     }
 
     private void prepareTestData() throws Exception {

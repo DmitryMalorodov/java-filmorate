@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -11,6 +12,9 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
+
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.FILM_NOT_FOUND_MESSAGE;
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +26,7 @@ public class FilmService {
     public Film findFilmById(Long filmId) {
         log.info("Поиск фильма по id - {}", filmId);
         return filmStorage.findFilmById(filmId)
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
+                .orElseThrow(() -> new NotFoundException(String.format(FILM_NOT_FOUND_MESSAGE, filmId)));
     }
 
     public Collection<Film> findAll() {
@@ -64,6 +68,10 @@ public class FilmService {
     }
 
     public Collection<Film> getMostPopularFilmsByLikes(int limit) {
+        if (limit < 0) {
+            throw new ValidationException(NEGATIVE_LIMIT_MESSAGE);
+        }
+
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed())
