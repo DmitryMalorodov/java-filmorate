@@ -43,9 +43,9 @@ public class FilmService {
         log.info("Фильм для редактирования {}", oldFilm);
 
         if (newFilm.getName() != null && !newFilm.getName().isBlank()) oldFilm.setName(newFilm.getName());
-        oldFilm.setDescription(newFilm.getDescription());
-        oldFilm.setReleaseDate(newFilm.getReleaseDate());
-        oldFilm.setDuration(newFilm.getDuration());
+        if (newFilm.getDescription() != null) oldFilm.setDescription(newFilm.getDescription());
+        if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
+        if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         log.info("Отредактированный фильм {}", oldFilm);
         return oldFilm;
 
