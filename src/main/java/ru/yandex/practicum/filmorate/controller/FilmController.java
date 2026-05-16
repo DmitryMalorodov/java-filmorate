@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
 @RestController
 @Validated
@@ -48,7 +51,8 @@ public class FilmController {
     }
 
     @GetMapping(FilmEndpoints.FILMS_POPULAR)
-    public Collection<Film> getPopularFilms(@RequestParam final Integer count) {
+    public Collection<Film> getPopularFilms(
+            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
         return filmService.getMostPopularFilmsByLikes(count);
     }
 }

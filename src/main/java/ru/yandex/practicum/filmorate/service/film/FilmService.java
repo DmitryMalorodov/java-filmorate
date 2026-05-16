@@ -68,9 +68,6 @@ public class FilmService {
     }
 
     public Collection<Film> getMostPopularFilmsByLikes(int limit) {
-        if (limit < 0) {
-            throw new ValidationException(NEGATIVE_LIMIT_MESSAGE);
-        }
 
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
         return filmStorage.findAll().stream()
