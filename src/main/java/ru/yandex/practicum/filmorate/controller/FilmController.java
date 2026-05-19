@@ -1,57 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.constant.endpoint.FilmEndpoints;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import static ru.yandex.practicum.filmorate.Helper.getNextId;
+import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
 @RestController
-@RequestMapping("/films")
-@Slf4j
 @Validated
+@RequiredArgsConstructor
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final FilmService filmService;
 
-    @GetMapping
+    @GetMapping(FilmEndpoints.FILMS_ID)
+    public Film findFilmById(@PathVariable final Long id) {
+        return filmService.findFilmById(id);
+    }
+
+    @GetMapping(FilmEndpoints.FILMS)
     public Collection<Film> findAll() {
-        return films.values();
+        return filmService.findAll();
     }
 
-    @PostMapping
-    public Film create(@Validated(OnCreate.class) @RequestBody Film film) {
-        film.setId(getNextId(films.keySet()));
-        films.put(film.getId(), film);
-        log.info("Добавлен фильм {}", film);
-        return film;
+    @PostMapping(FilmEndpoints.FILMS)
+    public Film create(@Validated(OnCreate.class) @RequestBody final Film film) {
+        return filmService.create(film);
     }
 
-    @PutMapping
-    public Film update(@Validated(OnUpdate.class) @RequestBody Film newFilm) {
-        Film oldFilm = films.get(newFilm.getId());
-        log.info("Фильм для редактирования {}", oldFilm);
-        if (oldFilm != null) {
-            if (newFilm.getName() != null && !newFilm.getName().isBlank()) oldFilm.setName(newFilm.getName());
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            oldFilm.setDuration(newFilm.getDuration());
-            log.info("Отредактированный фильм {}", oldFilm);
-            return oldFilm;
-        }
-
-        log.info("Фильм с id {} отсутствует", newFilm.getId());
-        throw new ValidationException(String.format("Фильм с id '%d' отсутствует", newFilm.getId()));
+    @PutMapping(FilmEndpoints.FILMS)
+    public Film update(@Validated(OnUpdate.class) @RequestBody final Film newFilm) {
+        return filmService.update(newFilm);
     }
 
-    public void cleanFilms() {
-        films.clear();
+    @PutMapping(FilmEndpoints.FILMS_ID_LIKE_USER_ID)
+    public void addLikeToFilm(@PathVariable final Long id, @PathVariable final Long userId) {
+        filmService.addLikeToFilm(userId, id);
+    }
+
+    @DeleteMapping(FilmEndpoints.FILMS_ID_LIKE_USER_ID)
+    public void deleteLikeFromFilm(@PathVariable final Long id, @PathVariable final Long userId) {
+        filmService.deleteLikeFromFilm(userId, id);
+    }
+
+    @GetMapping(FilmEndpoints.FILMS_POPULAR)
+    public Collection<Film> getPopularFilms(
+            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
+        return filmService.getMostPopularFilmsByLikes(count);
     }
 }

@@ -6,49 +6,31 @@ import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.users.UserData.*;
+import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.USERS_ID;
+import static ru.yandex.practicum.filmorate.constant.message.UserValidationMessages.USER_NOT_FOUND_MESSAGE;
+import static ru.yandex.practicum.filmorate.users.UserData.user;
 
-@DisplayName("Проверка получения пользователей")
+@DisplayName("Проверка получения пользователя")
 public class GetUserTests extends UserTest {
 
     @Test
-    void checkGettingOneFilm() throws Exception {
-        createUser(user);
+    void checkGetUser() throws Exception {
+        Long userId = getIdFromObject(createUser(user));
 
-        mockMvc.perform(get(ENDPOINT))
+        mockMvc.perform(get(USERS_ID, userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].email").value("email@em.ru"))
-                .andExpect(jsonPath("$[0].login").value("Логин"))
-                .andExpect(jsonPath("$[0].name").value("Имя"))
-                .andExpect(jsonPath("$[0].birthday").value("2000-10-20"));
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.email").value("email@em.ru"))
+                .andExpect(jsonPath("$.login").value("Логин"))
+                .andExpect(jsonPath("$.name").value("Имя"))
+                .andExpect(jsonPath("$.birthday").value("2000-10-20"));
     }
 
     @Test
-    void checkGettingTwoFilms() throws Exception {
-        createUser(user);
-        createUser(user);
-
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].email").value("email@em.ru"))
-                .andExpect(jsonPath("$[0].login").value("Логин"))
-                .andExpect(jsonPath("$[0].name").value("Имя"))
-                .andExpect(jsonPath("$[0].birthday").value("2000-10-20"))
-                .andExpect(jsonPath("$[1].id").exists())
-                .andExpect(jsonPath("$[1].email").value("email@em.ru"))
-                .andExpect(jsonPath("$[1].login").value("Логин"))
-                .andExpect(jsonPath("$[1].name").value("Имя"))
-                .andExpect(jsonPath("$[1].birthday").value("2000-10-20"));
-    }
-
-    @Test
-    void checkGettingNoOneFilm() throws Exception {
-        mockMvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+    void checkGetDoesNotExistUser() throws Exception {
+        Long userNotExistId = 1L;
+        mockMvc.perform(get(USERS_ID, userNotExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(String.format(USER_NOT_FOUND_MESSAGE, userNotExistId)));
     }
 }
