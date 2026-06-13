@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.model.film;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +37,8 @@ public class Film {
 
     @Positive(groups = {OnCreate.class, OnUpdate.class}, message = DURATION_MUST_BE_POSITIVE_MESSAGE)
     private Integer duration;
+
+    private Integer mpaId;
 
     @Builder.Default
     private Set<Long> likesUsersId = new HashSet<>(); // id юзеров, которые поставили лайк фильму

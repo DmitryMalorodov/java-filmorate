@@ -1,4 +1,5 @@
 DELETE FROM film_genres;
+DELETE FROM films;
 DELETE FROM mpa;
 DELETE FROM genres;
 DELETE FROM users;
@@ -20,5 +21,3 @@ INSERT INTO genres (name) VALUES ('Мультфильм');
 INSERT INTO genres (name) VALUES ('Триллер');
 INSERT INTO genres (name) VALUES ('Документальный');
 INSERT INTO genres (name) VALUES ('Боевик');
-
-INSERT INTO users (email, login, name) VALUES ('fgffg@ffff.ru', '12345', 'jack');

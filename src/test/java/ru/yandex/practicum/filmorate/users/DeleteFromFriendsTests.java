@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.users;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,6 +14,11 @@ import static ru.yandex.practicum.filmorate.users.UserData.user;
 
 @DisplayName("Проверка удаления из списока друзей")
 public class DeleteFromFriendsTests extends UserTest {
+
+    @Autowired
+    public DeleteFromFriendsTests(UserRepository userRepository) {
+        super(userRepository);
+    }
 
     @Test
     void checkDeleteFromFriends() throws Exception {

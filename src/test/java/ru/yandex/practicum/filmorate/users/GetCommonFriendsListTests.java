@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.users;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -12,6 +14,11 @@ import static ru.yandex.practicum.filmorate.users.UserData.user;
 
 @DisplayName("Проверка получения общего списка друзей двух пользователей")
 public class GetCommonFriendsListTests extends UserTest {
+
+    @Autowired
+    public GetCommonFriendsListTests(UserRepository userRepository) {
+        super(userRepository);
+    }
 
     @Test
     void checkGetCommonFriendsList() throws Exception {

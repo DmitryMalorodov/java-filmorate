@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
-import java.util.List;
+import java.util.Collection;
 
 @RestController
 @Validated
@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping(UserEndpoints.USERS)
-    public List<UserDto> getUsers() {
+    public Collection<UserDto> getUsers() {
         return userService.getUsers();
     }
 
@@ -49,25 +49,12 @@ public class UserController {
     }
 
     @GetMapping(UserEndpoints.USERS_ID_FRIENDS_COMMON_OTHER_ID)
-    public List<UserDto> getCommonFriendsList(@PathVariable final Long id, @PathVariable final Long otherUserId) {
+    public Collection<UserDto> getCommonFriendsList(@PathVariable final Long id, @PathVariable final Long otherUserId) {
         return userService.getCommonFriendsList(id, otherUserId);
     }
 
     @GetMapping(UserEndpoints.USERS_ID_FRIENDS)
-    public List<UserDto> getFriendsList(@PathVariable final Long id) {
+    public Collection<UserDto> getFriendsList(@PathVariable final Long id) {
         return userService.getUserFriendsList(id);
-    }
-
-
-
-
-
-
-
-
-
-    @GetMapping("/userss/{uid}")
-    public User findUserById(@PathVariable final Long id) {
-        return userService.findUserById(id);
     }
 }

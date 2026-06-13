@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.users;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.time.LocalDate;
@@ -14,8 +17,13 @@ import static ru.yandex.practicum.filmorate.users.UserData.*;
 @DisplayName("Проверка добавления пользователя")
 public class PostUserTests extends UserTest {
 
+    @Autowired
+    public PostUserTests(UserRepository userRepository) {
+        super(userRepository);
+    }
+
     @Test
-    void checkCreateFilm() throws Exception {
+    void checkCreateUser() throws Exception {
         createUser(user)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
@@ -83,5 +91,14 @@ public class PostUserTests extends UserTest {
         User userBirthdayNow = user.toBuilder().id(null).build();
         createUser(userBirthdayNow)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkCreateUserDB() {
+        User actUser = userRepository.save(user);
+
+        SoftAssertions softAssert = new SoftAssertions();
+        checkUser(actUser, user, softAssert);
+        softAssert.assertAll();
     }
 }

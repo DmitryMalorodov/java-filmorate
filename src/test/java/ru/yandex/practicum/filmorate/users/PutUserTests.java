@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.users;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.time.LocalDate;
@@ -13,6 +16,11 @@ import static ru.yandex.practicum.filmorate.users.UserData.*;
 
 @DisplayName("Проверка изменения пользователя")
 public class PutUserTests extends UserTest {
+
+    @Autowired
+    public PutUserTests(UserRepository userRepository) {
+        super(userRepository);
+    }
 
     @Test
     void checkChangeUser() throws Exception {
@@ -108,6 +116,17 @@ public class PutUserTests extends UserTest {
         newUser.setId(null);
 
         checkValidationError(changeUser(newUser), ID_NULL_MESSAGE);
+    }
+
+    @Test
+    void checkChangeUserDB() throws Exception {
+        userRepository.save(user);
+        User expUser = prepareReqBody(user2);
+        User actUser = userRepository.update(expUser);
+
+        SoftAssertions softAssert = new SoftAssertions();
+        checkUser(actUser, expUser, softAssert);
+        softAssert.assertAll();
     }
 
     private User prepareReqBody(User user) throws Exception {

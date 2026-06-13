@@ -3,74 +3,68 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.film.Film;
-import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.dal.old.film.FilmStorage;
 
 import java.util.Collection;
-import java.util.Comparator;
-
-import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.FILM_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final FilmRepository filmRepository;
 
-    public Film findFilmById(Long filmId) {
-        log.info("Поиск фильма по id - {}", filmId);
-        return filmStorage.findFilmById(filmId)
-                .orElseThrow(() -> new NotFoundException(String.format(FILM_NOT_FOUND_MESSAGE, filmId)));
+    public FilmDto getFilmById(Long filmId) {
+        return filmRepository.findById(filmId)
+                .map(FilmMapper::mapToFilmDto)
+                .orElseThrow(() -> new NotFoundException("Фильм не найден с id: " + filmId));
     }
 
-    public Collection<Film> findAll() {
-        log.info("Получение списка всех фильмов");
-        return filmStorage.findAll();
+    public Collection<FilmDto> getFilms() {
+        return filmRepository.findAll()
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
     }
 
-    public Film create(Film film) {
-        return filmStorage.create(film);
+    public FilmDto createFilm(Film film) {
+        log.info("Создание фильма {}", film);
+        film = filmRepository.save(film);
+        return FilmMapper.mapToFilmDto(film);
     }
 
-    public Film update(Film newFilm) {
-        Film oldFilm = findFilmById(newFilm.getId());
+    public FilmDto update(Film newFilm) {
+        Film oldFilm = FilmMapper.mapToFilm(getFilmById(newFilm.getId()));
         log.info("Фильм для редактирования {}", oldFilm);
 
         if (newFilm.getName() != null && !newFilm.getName().isBlank()) oldFilm.setName(newFilm.getName());
         if (newFilm.getDescription() != null) oldFilm.setDescription(newFilm.getDescription());
         if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
+        if (newFilm.getMpaId() != null) oldFilm.setMpaId(newFilm.getMpaId());
+        filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
-        return oldFilm;
-
+        return FilmMapper.mapToFilmDto(oldFilm);
     }
 
-    public void addLikeToFilm(Long userId, Long filmId) {
-        User user = userService.findUserById(userId);
-        Film film = findFilmById(filmId);
-
+    public void addLike(Long filmId, Long userId) {
         log.info("Добавление лайка пользователем с id - {} к фильму с id - {}", userId, filmId);
-        film.getLikesUsersId().add(user.getId());
+        filmRepository.addLike(filmId, userId);
     }
 
-    public void deleteLikeFromFilm(Long userId, Long filmId) {
-        User user = userService.findUserById(userId);
-        Film film = findFilmById(filmId);
-
+    public void deleteLike(Long filmId, Long userId) {
+        filmRepository.deleteLike(filmId, userId);
         log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
-        film.getLikesUsersId().remove(user.getId());
     }
 
-    public Collection<Film> getMostPopularFilmsByLikes(int limit) {
-
+    public Collection<FilmDto> getMostPopularFilmsByLikes(int limit) {
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
-        return filmStorage.findAll().stream()
-                .sorted(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed())
-                .limit(limit)
+        return filmRepository.getPopularFilms(limit)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
 }
