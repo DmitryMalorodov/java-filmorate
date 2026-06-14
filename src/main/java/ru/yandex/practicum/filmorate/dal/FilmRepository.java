@@ -16,7 +16,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?," +
             " duration = ?, mpa_id = ? WHERE id = ?";
-    private static final String FIND_LIKE_QUERY = "SELECT * FROM film_likes WHERE film_id = ? AND user_id = ?";
+    private static final String FIND_LIKE_QUERY = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" +
             "VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
@@ -69,9 +69,14 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public void addLike(Long filmId, Long userId) {
-        if (findMany(FIND_LIKE_QUERY, filmId, userId).isEmpty()) {
+        if (!hasLike(filmId, userId)) {
             update(ADD_LIKE_QUERY, filmId, userId);
         }
+    }
+
+    public boolean hasLike(Long filmId, Long userId) {
+        Integer count = jdbc.queryForObject(FIND_LIKE_QUERY, Integer.class, filmId, userId);
+        return count != null && count > 0;
     }
 
     public void deleteLike(Long filmId, Long userId) {

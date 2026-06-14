@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.films;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,15 +15,21 @@ import static ru.yandex.practicum.filmorate.films.FilmData.*;
 @DisplayName("Проверка добавления фильмов")
 public class PostFilmTests extends FilmTest {
 
+    @Autowired
+    public PostFilmTests(FilmRepository filmRepository) {
+        super(filmRepository);
+    }
+
     @Test
     void checkCreateFilm() throws Exception {
         createFilm(film)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value("Имя фильма"))
-                .andExpect(jsonPath("$.description").value("Описание"))
-                .andExpect(jsonPath("$.releaseDate").value("2000-12-25"))
-                .andExpect(jsonPath("$.duration").value(145));
+                .andExpect(jsonPath("$.name").value(film.getName()))
+                .andExpect(jsonPath("$.description").value(film.getDescription()))
+                .andExpect(jsonPath("$.releaseDate").value(film.getReleaseDate().toString()))
+                .andExpect(jsonPath("$.duration").value(film.getDuration()))
+                .andExpect(jsonPath("$.mpaId").value(film.getMpaId()));
     }
 
     @Test
@@ -99,5 +108,14 @@ public class PostFilmTests extends FilmTest {
         Film filmWithoutId = film.toBuilder().id(null).build();
         createFilm(filmWithoutId)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void checkCreateFilmDB() {
+        Film actFilm = filmRepository.save(film);
+
+        SoftAssertions softAssert = new SoftAssertions();
+        checkFilm(actFilm, film, softAssert);
+        softAssert.assertAll();
     }
 }

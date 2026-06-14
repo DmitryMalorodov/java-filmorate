@@ -51,11 +51,15 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
+        //вызов метода получения фильма по id для проверки его существования
+        getFilmById(filmId);
         log.info("Добавление лайка пользователем с id - {} к фильму с id - {}", userId, filmId);
         filmRepository.addLike(filmId, userId);
     }
 
     public void deleteLike(Long filmId, Long userId) {
+        //вызов метода получения фильма по id для проверки его существования
+        getFilmById(filmId);
         filmRepository.deleteLike(filmId, userId);
         log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
     }

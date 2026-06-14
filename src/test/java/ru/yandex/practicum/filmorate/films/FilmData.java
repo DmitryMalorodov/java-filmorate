@@ -10,6 +10,15 @@ public class FilmData {
             .description("Описание")
             .releaseDate(LocalDate.of(2000, 12, 25))
             .duration(145)
+            .mpaId(1)
+            .build();
+
+    static final Film film2 = Film.builder()
+            .name("Имя фильма2")
+            .description("Описание2")
+            .releaseDate(LocalDate.of(2000, 12, 20))
+            .duration(100)
+            .mpaId(2)
             .build();
 
     static final String STR_200_LENGTH = "Описание200символов!Описание200символов!" +
