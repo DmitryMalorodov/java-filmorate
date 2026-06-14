@@ -61,6 +61,9 @@ public class UserService {
     }
 
     public void deleteFriend(Long userId, Long friendId) {
+        //вызов методов поиска юзеров для проверки, что они существуют
+        getUserById(userId);
+        getUserById(friendId);
         log.info("Удаление из друзей пользователей с id - {}, {}", userId, friendId);
         friendshipRepository.deleteFriend(userId, friendId);
     }
