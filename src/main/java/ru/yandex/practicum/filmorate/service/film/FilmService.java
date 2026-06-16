@@ -53,7 +53,7 @@ public class FilmService {
         if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
-        if (newFilm.getGenres() != null) oldFilm.setGenres(newFilm.getGenres());
+        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
