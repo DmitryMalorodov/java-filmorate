@@ -36,7 +36,8 @@ public class GetFilmTests extends FilmTest {
                 .andExpect(jsonPath("$.description").value(film.getDescription()))
                 .andExpect(jsonPath("$.releaseDate").value(film.getReleaseDate().toString()))
                 .andExpect(jsonPath("$.duration").value(film.getDuration()))
-                .andExpect(jsonPath("$.mpaId").value(film.getMpaId()));
+                .andExpect(jsonPath("$.mpa.id").value(film.getMpa().getId()))
+                .andExpect(jsonPath("$.mpa.name").value(film.getMpa().getName()));
     }
 
     @Test

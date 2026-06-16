@@ -77,6 +77,8 @@ public class UserService {
     }
 
     public Collection<UserDto> getUserFriendsList(Long userId) {
+        //вызов метода поиска юзера для проверки, что он существует
+        getUserById(userId);
         log.info("Получение списка друзей пользователя с id - {}", userId);
         return userRepository.getFriendsList(userId)
                 .stream()

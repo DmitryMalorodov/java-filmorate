@@ -69,7 +69,7 @@ public class AddToFriendsTests extends UserTest {
                 .andExpect(status().isOk());
 
         //проверка что у юзера с userId пустой список друзей
-        mockMvc.perform(get(USERS_ID_FRIENDS, userId))
+        mockMvc.perform(get(USERS_ID_FRIENDS, friendId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -165,7 +165,7 @@ public class AddToFriendsTests extends UserTest {
         //добавление в друзья от userId
         friendshipRepository.addFriend(userId, friendId);
 
-        Assertions.assertTrue(userRepository.getFriendsList(userId).isEmpty());
+        Assertions.assertTrue(userRepository.getFriendsList(friendId).isEmpty());
     }
 
     @Test

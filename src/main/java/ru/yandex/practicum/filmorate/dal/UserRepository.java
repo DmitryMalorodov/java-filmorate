@@ -17,18 +17,18 @@ public class UserRepository extends BaseRepository<User> {
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, birthday = ? WHERE id = ?";
     private static final String COMMON_FRIENDS_QUERY = "SELECT u.* FROM users u " +
             "WHERE u.id IN (" +
-            "SELECT friend_id FROM user_friendships WHERE user_id = ? AND status = 'CONFIRMED' " +
+            "SELECT friend_id FROM user_friendships WHERE user_id = ? " +
             "UNION " +
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ") " +
             "AND u.id IN (" +
-            "SELECT friend_id FROM user_friendships WHERE user_id = ? AND status = 'CONFIRMED' " +
+            "SELECT friend_id FROM user_friendships WHERE user_id = ? " +
             "UNION " +
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";
     private static final String USER_FRIENDS_QUERY = "SELECT u.* FROM users u " +
             "WHERE u.id IN (" +
-            "SELECT friend_id FROM user_friendships WHERE user_id = ? AND status = 'CONFIRMED' " +
+            "SELECT friend_id FROM user_friendships WHERE user_id = ? " +
             "UNION " +
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";

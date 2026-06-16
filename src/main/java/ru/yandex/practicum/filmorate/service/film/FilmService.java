@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.service.genre.GenreService;
+import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.Collection;
 
@@ -16,6 +18,8 @@ import java.util.Collection;
 @Slf4j
 public class FilmService {
     private final FilmRepository filmRepository;
+    private final GenreService genreService;
+    private final MpaService mpaService;
 
     public FilmDto getFilmById(Long filmId) {
         return filmRepository.findById(filmId)
@@ -31,6 +35,10 @@ public class FilmService {
     }
 
     public FilmDto createFilm(Film film) {
+        //проверка, что переданные id жанров и mpa существуют в БД
+        film.getGenres().forEach(genre -> genreService.getGenreById(genre.getId()));
+        mpaService.getMpaById(film.getMpa().getId());
+
         log.info("Создание фильма {}", film);
         film = filmRepository.save(film);
         return FilmMapper.mapToFilmDto(film);
@@ -44,7 +52,8 @@ public class FilmService {
         if (newFilm.getDescription() != null) oldFilm.setDescription(newFilm.getDescription());
         if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
-        if (newFilm.getMpaId() != null) oldFilm.setMpaId(newFilm.getMpaId());
+        if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
+        if (newFilm.getGenres() != null) oldFilm.setGenres(newFilm.getGenres());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);

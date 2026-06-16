@@ -36,7 +36,8 @@ public class GetFilmsTests extends FilmTest {
                 .andExpect(jsonPath("$[0].description").value(film.getDescription()))
                 .andExpect(jsonPath("$[0].releaseDate").value(film.getReleaseDate().toString()))
                 .andExpect(jsonPath("$[0].duration").value(film.getDuration()))
-                .andExpect(jsonPath("$[0].mpaId").value(film.getMpaId()));
+                .andExpect(jsonPath("$[0].mpa.id").value(film.getMpa().getId()))
+                .andExpect(jsonPath("$[0].mpa.name").value(film.getMpa().getName()));
     }
 
     @Test
@@ -52,13 +53,15 @@ public class GetFilmsTests extends FilmTest {
                 .andExpect(jsonPath("$[0].description").value(film.getDescription()))
                 .andExpect(jsonPath("$[0].releaseDate").value(film.getReleaseDate().toString()))
                 .andExpect(jsonPath("$[0].duration").value(film.getDuration()))
-                .andExpect(jsonPath("$[0].mpaId").value(film.getMpaId()))
+                .andExpect(jsonPath("$[0].mpa.id").value(film.getMpa().getId()))
+                .andExpect(jsonPath("$[0].mpa.name").value(film.getMpa().getName()))
                 .andExpect(jsonPath("$[1].id").exists())
                 .andExpect(jsonPath("$[1].name").value(film.getName()))
                 .andExpect(jsonPath("$[1].description").value(film.getDescription()))
                 .andExpect(jsonPath("$[1].releaseDate").value(film.getReleaseDate().toString()))
                 .andExpect(jsonPath("$[1].duration").value(film.getDuration()))
-                .andExpect(jsonPath("$[1].mpaId").value(film.getMpaId()));
+                .andExpect(jsonPath("$[1].mpa.id").value(film.getMpa().getId()))
+                .andExpect(jsonPath("$[1].mpa.name").value(film.getMpa().getName()));
     }
 
     @Test

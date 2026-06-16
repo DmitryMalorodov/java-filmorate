@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.*;
@@ -38,8 +38,8 @@ public class Film {
     @Positive(groups = {OnCreate.class, OnUpdate.class}, message = DURATION_MUST_BE_POSITIVE_MESSAGE)
     private Integer duration;
 
-    private Integer mpaId;
+    private Mpa mpa;
 
     @Builder.Default
-    private Set<Long> likesUsersId = new HashSet<>(); // id юзеров, которые поставили лайк фильму
+    private Set<Genre> genres = new LinkedHashSet<>();
 }

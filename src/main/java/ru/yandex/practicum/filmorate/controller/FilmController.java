@@ -22,12 +22,12 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping(FilmEndpoints.FILMS_ID)
-    public FilmDto getFilmByiD(@PathVariable final Long id) {
+    public FilmDto getFilmById(@PathVariable final Long id) {
         return filmService.getFilmById(id);
     }
 
     @GetMapping(FilmEndpoints.FILMS)
-    public Collection<FilmDto> findAll() {
+    public Collection<FilmDto> getFilms() {
         return filmService.getFilms();
     }
 

@@ -48,5 +48,5 @@ CREATE TABLE IF NOT EXISTS film_genres (
     genre_id INTEGER,
     PRIMARY KEY (film_id, genre_id),
     FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE,
-    FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
+    FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE RESTRICT
     );

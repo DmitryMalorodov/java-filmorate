@@ -35,6 +35,6 @@ public class FilmTest extends MainTest {
         isEqual(actFilm.getDescription(), expFilm.getDescription(), "description '%s' отличается от ожидаемого '%s'", softAssert);
         isEqual(actFilm.getReleaseDate(), expFilm.getReleaseDate(), "releaseDate '%s' отличается от ожидаемого '%s'", softAssert);
         isEqual(actFilm.getDuration(), expFilm.getDuration(), "duration '%s' отличается от ожидаемого '%s'", softAssert);
-        isEqual(actFilm.getMpaId(), expFilm.getMpaId(), "mpaId '%s' отличается от ожидаемого '%s'", softAssert);
+        isEqual(actFilm.getMpa(), expFilm.getMpa(), "mpaId '%s' отличается от ожидаемого '%s'", softAssert);
     }
 }
