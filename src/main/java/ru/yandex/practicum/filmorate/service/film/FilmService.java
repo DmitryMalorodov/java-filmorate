@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
@@ -35,8 +36,14 @@ public class FilmService {
     }
 
     public FilmDto createFilm(Film film) {
-        //проверка, что переданные id жанров и mpa существуют в БД
-        film.getGenres().forEach(genre -> genreService.getGenreById(genre.getId()));
+        //проверка, что переданные id жанров существуют в БД
+        boolean isGenresExist = film.getGenres().stream()
+                .map(Genre::getId)
+                .allMatch(genreId -> genreService.getGenres().stream()
+                        .anyMatch(genreDB -> genreDB.getId().equals(genreId)));
+        if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
+
+        //проверка, что переданный id mpa существует в БД
         mpaService.getMpaById(film.getMpa().getId());
 
         log.info("Создание фильма {}", film);
