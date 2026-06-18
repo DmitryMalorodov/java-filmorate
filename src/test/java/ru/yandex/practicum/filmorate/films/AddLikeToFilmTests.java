@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.constant.endpoint.FilmEndpoints.FILMS_ID_LIKE_USER_ID;
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.FILM_NOT_FOUND_MESSAGE;
 import static ru.yandex.practicum.filmorate.films.FilmData.film;
 import static ru.yandex.practicum.filmorate.users.UserData.user;

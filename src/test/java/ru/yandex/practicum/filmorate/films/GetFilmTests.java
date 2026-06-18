@@ -13,7 +13,6 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.constant.endpoint.FilmEndpoints.FILMS_ID;
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.FILM_NOT_FOUND_MESSAGE;
 import static ru.yandex.practicum.filmorate.films.FilmData.film;
 

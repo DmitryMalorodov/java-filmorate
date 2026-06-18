@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.dal.UserRepository;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.*;
 import static ru.yandex.practicum.filmorate.constant.message.UserValidationMessages.USER_NOT_FOUND_MESSAGE;
 import static ru.yandex.practicum.filmorate.users.UserData.user;
 import static ru.yandex.practicum.filmorate.users.UserData.user2;

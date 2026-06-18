@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.user.User;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.USERS;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,7 +39,7 @@ public class MainTest {
     }
 
     protected ResultActions createUser(User user) throws Exception {
-        return mockMvc.perform(post(USERS)
+        return mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)));
     }

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
@@ -15,45 +14,46 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
-    @GetMapping(UserEndpoints.USERS_ID)
+    @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable final Long id) {
         return userService.getUserById(id);
     }
 
-    @GetMapping(UserEndpoints.USERS)
+    @GetMapping
     public Collection<UserDto> getUsers() {
         return userService.getUsers();
     }
 
-    @PostMapping(UserEndpoints.USERS)
+    @PostMapping
     public UserDto create(@Validated(OnCreate.class) @RequestBody final User user) {
         return userService.createUser(user);
     }
 
-    @PutMapping(UserEndpoints.USERS)
+    @PutMapping
     public UserDto update(@Validated(OnUpdate.class) @RequestBody final User newUser) {
         return userService.updateUser(newUser);
     }
 
-    @PutMapping(UserEndpoints.USERS_ID_FRIENDS_FRIEND_ID)
+    @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable final Long id, @PathVariable final Long friendId) {
         userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping(UserEndpoints.USERS_ID_FRIENDS_FRIEND_ID)
+    @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable final Long id, @PathVariable final Long friendId) {
         userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping(UserEndpoints.USERS_ID_FRIENDS_COMMON_OTHER_ID)
+    @GetMapping("/{id}/friends/common/{otherUserId}")
     public Collection<UserDto> getCommonFriendsList(@PathVariable final Long id, @PathVariable final Long otherUserId) {
         return userService.getCommonFriendsList(id, otherUserId);
     }
 
-    @GetMapping(UserEndpoints.USERS_ID_FRIENDS)
+    @GetMapping("/{id}/friends")
     public Collection<UserDto> getFriendsList(@PathVariable final Long id) {
         return userService.getUserFriendsList(id);
     }

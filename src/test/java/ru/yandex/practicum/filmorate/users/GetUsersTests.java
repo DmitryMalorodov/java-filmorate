@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.users.UserData.*;
-import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.USERS;
 
 @DisplayName("Проверка получения пользователей")
 public class GetUsersTests extends UserTest {

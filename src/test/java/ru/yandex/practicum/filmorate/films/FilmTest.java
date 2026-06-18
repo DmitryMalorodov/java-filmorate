@@ -12,10 +12,14 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static ru.yandex.practicum.filmorate.GeneralAssertions.isEqual;
-import static ru.yandex.practicum.filmorate.constant.endpoint.FilmEndpoints.FILMS;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmTest extends MainTest {
+    static final String FILMS = "/films";
+    static final String FILMS_ID = "/films/{id}";
+    static final String FILMS_ID_LIKE_USER_ID = "/films/{id}/like/{userId}";
+    static final String FILMS_POPULAR = "/films/popular";
+
     final FilmRepository filmRepository;
 
     ResultActions createFilm(Film film) throws Exception {

@@ -12,10 +12,15 @@ import ru.yandex.practicum.filmorate.model.user.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static ru.yandex.practicum.filmorate.GeneralAssertions.isEqual;
-import static ru.yandex.practicum.filmorate.constant.endpoint.UserEndpoints.USERS;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserTest extends MainTest {
+    static final String USERS = "/users";
+    static final String USERS_ID = "/users/{id}";
+    static final String USERS_ID_FRIENDS_COMMON_OTHER_ID = "/users/{id}/friends/common/{otherUserId}";
+    static final String USERS_ID_FRIENDS = "/users/{id}/friends";
+    static final String USERS_ID_FRIENDS_FRIEND_ID = "/users/{id}/friends/{friendId}";
+
     final UserRepository userRepository;
 
     ResultActions changeUser(User user) throws Exception {
