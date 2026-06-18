@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,12 +18,8 @@ public class BaseRepository<T> {
     protected final RowMapper<T> mapper;
 
     protected Optional<T> findOne(String query, Object... params) {
-        try {
-            T result = jdbc.queryForObject(query, mapper, params);
-            return Optional.ofNullable(result);
-        } catch (EmptyResultDataAccessException ignored) {
-            return Optional.empty();
-        }
+        List<T> result = jdbc.query(query, mapper, params);
+        return !result.isEmpty() ? Optional.ofNullable(result.getFirst()) : Optional.empty();
     }
 
     protected Optional<T> findOne(String query, ResultSetExtractor<Optional<T>> extractor, Object... params) {
