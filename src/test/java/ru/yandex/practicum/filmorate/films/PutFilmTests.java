@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.films;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.model.Film;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.model.film.Film;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,6 +16,11 @@ import static ru.yandex.practicum.filmorate.films.FilmData.*;
 @DisplayName("Проверка изменения фильмов")
 public class PutFilmTests extends FilmTest {
 
+    @Autowired
+    public PutFilmTests(FilmRepository filmRepository) {
+        super(filmRepository);
+    }
+
     @Test
     void checkChangeFilm() throws Exception {
         Film newFilm = prepareReqBody(film);
@@ -20,10 +28,12 @@ public class PutFilmTests extends FilmTest {
         changeFilm(newFilm)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(newFilm.getId()))
-                .andExpect(jsonPath("$.name").value("Имя фильма"))
-                .andExpect(jsonPath("$.description").value("Описание"))
-                .andExpect(jsonPath("$.releaseDate").value("2000-12-25"))
-                .andExpect(jsonPath("$.duration").value(145));
+                .andExpect(jsonPath("$.name").value(film.getName()))
+                .andExpect(jsonPath("$.description").value(film.getDescription()))
+                .andExpect(jsonPath("$.releaseDate").value(film.getReleaseDate().toString()))
+                .andExpect(jsonPath("$.duration").value(film.getDuration()))
+                .andExpect(jsonPath("$.mpa.id").value(film.getMpa().getId()))
+                .andExpect(jsonPath("$.mpa.name").value(film.getMpa().getName()));
     }
 
     @Test
@@ -129,6 +139,16 @@ public class PutFilmTests extends FilmTest {
         newFilm.setId(null);
 
         checkValidationError(changeFilm(newFilm), ID_NULL_MESSAGE);
+    }
+
+    @Test
+    void checkChangeFilmDB() throws Exception {
+        Film newFilm = prepareReqBody(film2);
+        Film actFilm = filmRepository.update(newFilm);
+
+        SoftAssertions softAssert = new SoftAssertions();
+        checkFilm(actFilm, film2, softAssert);
+        softAssert.assertAll();
     }
 
     private Film prepareReqBody(Film film) throws Exception {
