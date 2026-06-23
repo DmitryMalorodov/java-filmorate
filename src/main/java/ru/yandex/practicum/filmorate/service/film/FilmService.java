@@ -116,4 +116,10 @@ public class FilmService {
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
+
+    public void deleteFilm(Long filmId) {
+        //вызов метода получения фильма по id для проверки его существования
+        getFilmById(filmId);
+        filmRepository.deleteFilm(filmId);
+    }
 }

@@ -12,8 +12,6 @@ import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.constant.message.UserValidationMessages.*;
 
@@ -36,7 +34,4 @@ public class User {
 
     @PastOrPresent(groups = {OnCreate.class, OnUpdate.class}, message = BIRTHDAY_COULD_NOT_BE_IN_FUTURE_MESSAGE)
     private LocalDate birthday;
-
-    @Builder.Default
-    private Set<Long> friendsIds = new HashSet<>();
 }
