@@ -56,4 +56,9 @@ public class FilmController {
             @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
         return filmService.getMostPopularFilmsByLikes(count);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable final Long id) {
+        filmService.deleteFilm(id);
+    }
 }

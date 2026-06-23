@@ -32,6 +32,7 @@ public class UserRepository extends BaseRepository<User> {
             "UNION " +
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
 
     public UserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -74,5 +75,9 @@ public class UserRepository extends BaseRepository<User> {
                 user.getId()
         );
         return user;
+    }
+
+    public void deleteUser(Long userId) {
+        delete(DELETE_USER_QUERY, userId);
     }
 }

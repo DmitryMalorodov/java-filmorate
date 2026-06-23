@@ -86,6 +86,12 @@ public class UserService {
                 .toList();
     }
 
+    public void deleteUser(Long userId) {
+        //вызов метода поиска юзера для проверки, что он существует
+        getUserById(userId);
+        userRepository.deleteUser(userId);
+    }
+
     private void setName(User oldUser, User newUser) {
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             oldUser.setName(newUser.getLogin());

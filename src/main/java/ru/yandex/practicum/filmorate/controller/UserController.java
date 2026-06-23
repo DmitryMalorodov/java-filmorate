@@ -57,4 +57,9 @@ public class UserController {
     public Collection<UserDto> getFriendsList(@PathVariable final Long id) {
         return userService.getUserFriendsList(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable final Long id) {
+        userService.deleteUser(id);
+    }
 }

@@ -43,6 +43,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "LIMIT ?";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
+    private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -184,5 +185,9 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public void deleteLike(Long filmId, Long userId) {
         delete(DELETE_LIKE_QUERY, filmId, userId);
+    }
+
+    public void deleteFilm(Long filmId) {
+        delete(DELETE_FILM_QUERY, filmId);
     }
 }
