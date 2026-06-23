@@ -185,4 +185,8 @@ public class FilmRepository extends BaseRepository<Film> {
     public void deleteLike(Long filmId, Long userId) {
         delete(DELETE_LIKE_QUERY, filmId, userId);
     }
+
+    public List<Film> getFilmsByRequestParam(String queryDB, Object[] params) {
+        return findMany(queryDB, params);
+    }
 }

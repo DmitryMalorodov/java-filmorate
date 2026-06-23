@@ -12,7 +12,9 @@ import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +85,33 @@ public class FilmService {
     public Collection<FilmDto> getMostPopularFilmsByLikes(int limit) {
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
         return filmRepository.getPopularFilms(limit)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
+    public Collection<FilmDto> getFilmByRequestParam(String query, List<String> searchType) {
+        if (query.isEmpty()) getFilms();
+
+        String userQuery = "%" + query.toLowerCase() + "%";
+
+        StringBuilder sql = new StringBuilder("SELECT f.* FROM films f ");
+
+        StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(userQuery);
+
+        if (searchType.contains("directors")) {
+            sql.append("INNER JOIN film_directors fd ON fd.film_id = f.id ");
+            sql.append("INNER JOIN directors d ON d.id = fd.director_id ");
+
+            whereQuery.append("OR LOWER(d.name) LIKE ? ");
+            params.add(userQuery);
+        }
+
+        sql.append(whereQuery);
+        return filmRepository.getFilmsByRequestParam(sql.toString(), params.toArray())
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();

@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
@@ -55,5 +56,12 @@ public class FilmController {
     public Collection<FilmDto> getPopularFilms(
             @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
         return filmService.getMostPopularFilmsByLikes(count);
+    }
+
+    @GetMapping("/search")
+    public Collection<FilmDto> findFilms(@RequestParam final String query,
+                                         @RequestParam(defaultValue = "title", name = "by") final List<String> params
+    ) {
+        return filmService.getFilmByRequestParam(query, params);
     }
 }
