@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -72,5 +73,19 @@ public class BaseRepository<T> {
     protected boolean delete(String query, Object... params) {
         int rowsDeleted = jdbc.update(query, params);
         return rowsDeleted > 0;
+    }
+
+    protected int count(String query, Object... params) {
+        Integer count = jdbc.queryForObject(query, Integer.class, params);
+        return count != null ? count : 0;
+    }
+
+    protected Optional<String> findOneString(String query, Object... params) {
+        try {
+            String result = jdbc.queryForObject(query, String.class, params);
+            return Optional.ofNullable(result);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 }

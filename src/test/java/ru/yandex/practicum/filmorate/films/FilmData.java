@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public class FilmData {
-    static final Film film = Film.builder()
+    public static final Film film = Film.builder()
             .name("Имя фильма")
             .description("Описание")
             .releaseDate(LocalDate.of(2000, 12, 25))
