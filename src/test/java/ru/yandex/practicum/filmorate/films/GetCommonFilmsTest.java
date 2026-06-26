@@ -48,8 +48,8 @@ public class GetCommonFilmsTest extends FilmTest {
                 .andExpect(jsonPath("$[0].id").value(1));
 
         //очистка лайков
-        filmRepository.deleteLike(filmId,userId);
-        filmRepository.deleteLike(filmId,friendId);
+        filmRepository.deleteLike(filmId, userId);
+        filmRepository.deleteLike(filmId, friendId);
     }
 
     //проверка на отсутствие общих фильмов
@@ -67,7 +67,7 @@ public class GetCommonFilmsTest extends FilmTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(COMMON_FILMS)
-                .param("userId", userId.toString()).param("friendId", friendId.toString()))
+                        .param("userId", userId.toString()).param("friendId", friendId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
