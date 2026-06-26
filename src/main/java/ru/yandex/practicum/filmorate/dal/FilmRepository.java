@@ -37,11 +37,9 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" +
             "VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
-    private static final String POPULAR_FILMS_QUERY = "SELECT f.* FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC " +
-            "LIMIT ?";
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
+            "FROM films f " +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
@@ -153,8 +151,45 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
-    public List<Film> getPopularFilms(int limit) {
-        return findMany(POPULAR_FILMS_QUERY, limit);
+    public List<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
+        List<Integer> params = new ArrayList<>();
+        String sqlQuery = getPopularFilmsSqlQuery(genreId, year, params);
+        params.add(limit);
+        return findMany(sqlQuery, params.toArray());
+    }
+
+    private String getPopularFilmsSqlQuery(Integer genreId, Integer year, List<Integer> params) {
+        StringBuilder sqlQuery = new StringBuilder(POPULAR_FILMS_BASE_QUERY);
+
+        boolean hasGenre = genreId != null;
+        boolean hasYear = year != null;
+
+        //если жанр передан, то присоединяем таблицу связей жанров с фильмами
+        if (hasGenre) {
+            sqlQuery.append("LEFT JOIN film_genres fg ON f.id = fg.film_id ");
+        }
+
+        //если хотя бы один параметр передан (год/жанр) то добавляем в запрос фильтрацию
+        if (hasYear || hasGenre) {
+            sqlQuery.append("WHERE ");
+            if (hasYear) {
+                sqlQuery.append("EXTRACT(YEAR FROM f.release_date) = ? ");
+                params.add(year);
+            }
+            if (hasGenre) {
+                if (hasYear) {
+                    sqlQuery.append("AND ");
+                }
+                sqlQuery.append("fg.genre_id = ? ");
+                params.add(genreId);
+            }
+        }
+
+        sqlQuery.append("GROUP BY f.id ")
+                .append("ORDER BY likes_count DESC, f.id ASC ")
+                .append("LIMIT ?");
+
+        return sqlQuery.toString();
     }
 
     @Transactional
