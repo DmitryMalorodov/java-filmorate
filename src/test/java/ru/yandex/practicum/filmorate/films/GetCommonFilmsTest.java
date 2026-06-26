@@ -24,7 +24,7 @@ public class GetCommonFilmsTest extends FilmTest {
 
     //проверка общих фильмов
     @Test
-    public void GetCommonFilmsWhenFirstUserHaveAndSecondUserHave() throws Exception {
+    public void getCommonFilmsWhenFirstUserHaveAndSecondUserHave() throws Exception {
         Long userId = getIdFromObject(createUser(user));
         Long friendId = getIdFromObject(createUser(user2));
 
