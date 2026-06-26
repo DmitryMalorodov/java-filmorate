@@ -80,9 +80,9 @@ public class FilmService {
         log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
     }
 
-    public Collection<FilmDto> getMostPopularFilmsByLikes(int limit) {
+    public Collection<FilmDto> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
-        return filmRepository.getPopularFilms(limit)
+        return filmRepository.getPopularFilms(limit, genreId, year)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
