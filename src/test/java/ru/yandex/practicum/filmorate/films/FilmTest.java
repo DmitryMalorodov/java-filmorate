@@ -19,6 +19,7 @@ public class FilmTest extends MainTest {
     static final String FILMS_ID = "/films/{id}";
     static final String FILMS_ID_LIKE_USER_ID = "/films/{id}/like/{userId}";
     static final String FILMS_POPULAR = "/films/popular";
+    static final String COMMON_FILMS = "/films/common";
 
     final FilmRepository filmRepository;
 

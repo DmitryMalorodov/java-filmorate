@@ -45,6 +45,14 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
+    private static final String SEARCH_COMMON_FILMS = "SELECT f.* FROM films f\n" +
+            "INNER JOIN FILM_LIKES fl ON fl.FILM_ID = f.id\n" +
+            "WHERE f.id IN (\n" +
+            "SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?\n" +
+            "INTERSECT\n" +
+            "SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?)\n" +
+            "GROUP BY f.id\n" +
+            "ORDER BY count(fl.USER_ID) DESC";
 
     private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES= "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f" +
             "LEFT JOIN film_likes AS fl  ON f.id = fl.film_id" +
@@ -238,6 +246,12 @@ public class FilmRepository extends BaseRepository<Film> {
     public void deleteFilm(Long filmId) {
         delete(DELETE_FILM_QUERY, filmId);
     }
+
+    public List<Film> getCommonFilms(Long firstUser, Long secondUser) {
+        return findMany(SEARCH_COMMON_FILMS, firstUser, secondUser);
+    }
+
+    ;
 
     public List<Film> getFilmsByDirectorSortedByLikes (Long directorId) {
         return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, directorId);

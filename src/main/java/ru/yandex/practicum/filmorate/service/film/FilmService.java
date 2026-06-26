@@ -109,6 +109,14 @@ public class FilmService {
         filmRepository.deleteFilm(filmId);
     }
 
+    public Collection<FilmDto> getCommonFilms(Long firstUser, Long secondUser) {
+        return filmRepository.getCommonFilms(firstUser, secondUser)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
+
     public List<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> films = sortBy.equalsIgnoreCase("year")
                 ? filmRepository.getFilmsByDirectorSortedByYear(directorId)
