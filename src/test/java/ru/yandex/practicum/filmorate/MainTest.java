@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,5 +43,18 @@ public class MainTest {
         return mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)));
+    }
+
+    protected ResultActions createFilm(Film film) throws Exception {
+        return mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)));
+    }
+
+    protected Long getReviewIdFromObject(ResultActions response) throws Exception {
+        return JsonPath.parse(response
+                .andReturn()
+                .getResponse()
+                .getContentAsString()).read("$.reviewId", Long.class);
     }
 }

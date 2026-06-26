@@ -50,3 +50,26 @@ CREATE TABLE IF NOT EXISTS film_genres (
     FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE RESTRICT
     );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    content VARCHAR(255) NOT NULL,
+    is_positive BOOLEAN NOT NULL,
+    user_id BIGINT NOT NULL,
+    film_id BIGINT NOT NULL,
+    useful INTEGER DEFAULT 0,
+    likes_count INTEGER DEFAULT 0,
+    dislikes_count INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS review_reactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    review_id BIGINT NOT NULL,
+    reaction_type VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
+    CONSTRAINT unique_review_user UNIQUE (review_id, user_id)
+    );

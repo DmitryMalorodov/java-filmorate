@@ -22,7 +22,7 @@ public class FilmTest extends MainTest {
 
     final FilmRepository filmRepository;
 
-    ResultActions createFilm(Film film) throws Exception {
+    public ResultActions createFilm(Film film) throws Exception {
         return mockMvc.perform(post(FILMS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)));
