@@ -93,4 +93,12 @@ public class FilmService {
         getFilmById(filmId);
         filmRepository.deleteFilm(filmId);
     }
+
+    public Collection<FilmDto> getCommonFilms(Long firstUser, Long secondUser) {
+        return filmRepository.getCommonFilms(firstUser, secondUser)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
 }
