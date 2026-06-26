@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,22 +90,21 @@ public class ReviewService {
         getReviewById(reviewId);
         userService.getUserById(userId);
 
-        reviewReactionRepository.getReactionType(reviewId, userId)
-                .ifPresentOrElse(
-                        reaction -> {
-                            if (reaction.equals(ReactionType.DISLIKE)) {
-                                reviewReactionRepository.removeReaction(reviewId, userId);
-                                reviewRepository.updateCounters(reviewId, 0, -1);
-                            } else if (reaction.equals(ReactionType.LIKE)) {
-                                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
-                                reviewRepository.updateCounters(reviewId, -1, +1);
-                            }
-                        },
-                        () -> {
-                            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
-                            reviewRepository.updateCounters(reviewId, 0, +1);
-                        }
-                );
+        Optional<String> existingReactionOpt = reviewReactionRepository.getReactionType(reviewId, userId);
+
+        if (existingReactionOpt.isPresent()) {
+            String existing = existingReactionOpt.get();
+
+            if (existing.equals(ReactionType.DISLIKE.name())) {
+            } else if (existing.equals(ReactionType.LIKE.name())) {
+                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
+                reviewRepository.updateCounters(reviewId, -1, +1);
+            }
+        } else {
+            // Новая реакция — дизлайк
+            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
+            reviewRepository.updateCounters(reviewId, 0, +1);
+        }
     }
 
     //DELETE /reviews/{id}/like/{userId}
