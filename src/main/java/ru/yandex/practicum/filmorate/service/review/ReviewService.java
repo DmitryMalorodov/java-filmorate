@@ -96,12 +96,12 @@ public class ReviewService {
             String existing = existingReactionOpt.get();
 
             if (existing.equals(ReactionType.DISLIKE.name())) {
+                return;
             } else if (existing.equals(ReactionType.LIKE.name())) {
                 reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
                 reviewRepository.updateCounters(reviewId, -1, +1);
             }
         } else {
-            // Новая реакция — дизлайк
             reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
             reviewRepository.updateCounters(reviewId, 0, +1);
         }
