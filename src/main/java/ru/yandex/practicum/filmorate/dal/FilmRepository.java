@@ -44,14 +44,14 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
-    private static final String SEARCH_COMMON_FILMS = "SELECT f.* FROM films f\n" +
-            "INNER JOIN FILM_LIKES fl ON fl.FILM_ID = f.id\n" +
-            "WHERE f.id IN (\n" +
-            "SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?\n" +
-            "INTERSECT\n" +
-            "SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?)\n" +
-            "GROUP BY f.id\n" +
-            "ORDER BY count(fl.USER_ID) DESC";
+    private static final String SEARCH_COMMON_FILMS = "SELECT f.* FROM films f " +
+            "INNER JOIN FILM_LIKES fl ON fl.film_id = f.id " +
+            "WHERE f.id IN ( " +
+            "SELECT film_id FROM FILM_LIKES WHERE user_id = ? " +
+            "INTERSECT " +
+            "SELECT film_id FROM FILM_LIKES WHERE user_id = ?) " +
+            "GROUP BY f.id " +
+            "ORDER BY count(fl.user_id) DESC";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -199,9 +199,7 @@ public class FilmRepository extends BaseRepository<Film> {
         delete(DELETE_FILM_QUERY, filmId);
     }
 
-    public List<Film> getCommonFilms(Long firstUser, Long secondUser) {
-        return findMany(SEARCH_COMMON_FILMS, firstUser, secondUser);
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return findMany(SEARCH_COMMON_FILMS, userId, friendId);
     }
-
-    ;
 }
