@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.films;
+package ru.yandex.practicum.filmorate.recommendations;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.films.FilmTest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,7 +15,8 @@ import static ru.yandex.practicum.filmorate.users.UserData.*;
 @DisplayName("Тест рекомендованных фильмов")
 public class TestRecommendations extends FilmTest {
 
-    public static final String REST_REQUEST = "/users/{id}/recommendations";
+    static final String FILMS_ID_LIKE_USER_ID = "/films/{id}/like/{userId}";
+    static final String REST_REQUEST = "/users/{id}/recommendations";
 
     @Autowired
     public TestRecommendations(FilmRepository filmRepository) {
@@ -39,7 +41,7 @@ public class TestRecommendations extends FilmTest {
 
         mockMvc.perform(get(REST_REQUEST, targetUserId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -51,9 +53,7 @@ public class TestRecommendations extends FilmTest {
 
         mockMvc.perform(get(REST_REQUEST, targetUserId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[1].id").value(2));
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     private Long prepareTestData() throws Exception {

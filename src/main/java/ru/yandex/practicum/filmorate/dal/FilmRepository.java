@@ -266,7 +266,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return findMany(POPULAR_FILMS_BASE_QUERY + GROUP_ORDER_LIMIT_QUERY, 100);
+            return Collections.emptyList();
         }
 
         MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);

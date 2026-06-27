@@ -111,7 +111,7 @@ public class UserService {
         log.info("Начал поиск рекомедаций");
         Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);
         Map<Long, Set<Long>> mindedUsers = userRepository.getMindedUsers(idUser);
-        List<Long> recommendedFilms = new ArrayList<>();
+        List<Long> recommendedFilms;
         log.info("Получен список лайкнутых фильмов пользователем {}", userLikeList);
         log.info("Получен список пользователей единомышлиников {}", mindedUsers);
         recommendedFilms = mindedUsers.values().stream()
