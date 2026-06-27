@@ -43,6 +43,11 @@ public class BaseRepository<T> {
         );
     }
 
+    protected List<T> findMany(String query, ResultSetExtractor<List<T>> extractor, Object... params) {
+        return jdbc.query(query, extractor, params);
+    }
+
+
     protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
