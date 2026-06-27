@@ -14,7 +14,10 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = NotBeforeDateValidator.class)
 public @interface NotBeforeDate {
     String message();
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
+
     String value();
 }

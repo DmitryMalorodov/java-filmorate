@@ -80,7 +80,7 @@ public class AddToFriendsTests extends UserTest {
         Long friendId2 = getIdFromObject(createUser(user3));
 
         //добавление в друзья от userId
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,userId, friendId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, userId, friendId))
                 .andExpect(status().isOk());
         mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, userId, friendId2))
                 .andExpect(status().isOk());
@@ -123,7 +123,7 @@ public class AddToFriendsTests extends UserTest {
         Long userId = getIdFromObject(createUser(user));
         Long friendNotExistId = 4L;
 
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,userId, friendNotExistId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, userId, friendNotExistId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value(String.format(USER_NOT_FOUND_MESSAGE, friendNotExistId)));
     }

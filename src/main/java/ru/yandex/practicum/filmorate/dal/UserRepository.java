@@ -5,8 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class UserRepository extends BaseRepository<User> {
@@ -33,6 +32,15 @@ public class UserRepository extends BaseRepository<User> {
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    public static final String GET_LIKE_LIST_BY_USER = "SELECT film_id FROM film_likes  " +
+            "WHERE user_id = ?";
+    private static final String GET_LIST_MINDED_USERS = "SELECT user_id, film_id " +
+            "FROM film_likes " +
+            "WHERE user_id IN ( " +
+            "    SELECT DISTINCT user_id " +
+            "    FROM film_likes " +
+            "    WHERE film_id IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+            "    AND user_id <> ? );";
 
     public UserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -80,4 +88,26 @@ public class UserRepository extends BaseRepository<User> {
     public void deleteUser(Long userId) {
         delete(DELETE_USER_QUERY, userId);
     }
+
+    public Set<Long> getIdFilmsByUserId(Long idUser) {
+        return jdbc.query(GET_LIKE_LIST_BY_USER, rs -> {
+            Set<Long> idFilms = new HashSet<>();
+            while (rs.next()) {
+                idFilms.add(rs.getLong("film_id"));
+            }
+            return idFilms;
+        }, idUser);
+    }
+
+    public Map<Long, Set<Long>> getMindedUsers(Long userId) {
+        return jdbc.query(GET_LIST_MINDED_USERS, rs -> {
+            Map<Long, Set<Long>> idUsers = new HashMap<>();
+            while (rs.next()) {
+                idUsers.computeIfAbsent(rs.getLong("user_id"),
+                        k -> new HashSet<>()).add(rs.getLong("film_id"));
+            }
+            return idUsers;
+        }, userId, userId);
+    }
+
 }
