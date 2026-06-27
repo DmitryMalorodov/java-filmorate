@@ -36,9 +36,6 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" +
             "VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
-    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
-            "FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
@@ -49,6 +46,15 @@ public class FilmRepository extends BaseRepository<Film> {
             "    SELECT film_id FROM film_likes WHERE user_id = ? ) " +
             " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
 
+
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
+            "FROM films f " +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
+    private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
+    private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
+    private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
+            "ORDER BY likes_count DESC, f.id ASC " +
+            "LIMIT ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -137,14 +143,14 @@ public class FilmRepository extends BaseRepository<Film> {
 
         //если жанр передан, то присоединяем таблицу связей жанров с фильмами
         if (hasGenre) {
-            sqlQuery.append("LEFT JOIN film_genres fg ON f.id = fg.film_id ");
+            sqlQuery.append(JOIN_FILM_GENRES_QUERY);
         }
 
         //если хотя бы один параметр передан (год/жанр) то добавляем в запрос фильтрацию
         if (hasYear || hasGenre) {
             sqlQuery.append("WHERE ");
             if (hasYear) {
-                sqlQuery.append("EXTRACT(YEAR FROM f.release_date) = ? ");
+                sqlQuery.append(EXTRACT_YEAR_QUERY);
                 params.add(year);
             }
             if (hasGenre) {
@@ -156,9 +162,7 @@ public class FilmRepository extends BaseRepository<Film> {
             }
         }
 
-        sqlQuery.append("GROUP BY f.id ")
-                .append("ORDER BY likes_count DESC, f.id ASC ")
-                .append("LIMIT ?");
+        sqlQuery.append(GROUP_ORDER_LIMIT_QUERY);
 
         return sqlQuery.toString();
     }
