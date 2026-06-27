@@ -8,8 +8,11 @@ import ru.yandex.practicum.filmorate.dal.ReviewRepository;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.review.ReactionType;
 import ru.yandex.practicum.filmorate.model.review.Review;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -25,6 +28,7 @@ public class ReviewService {
     private final ReviewReactionRepository reviewReactionRepository;
     private final UserService userService;
     private final FilmService filmService;
+    private final EventService eventService;
 
     //GET /reviews/{id}
     public ReviewDto getReviewById(Long reviewId) {
@@ -44,7 +48,9 @@ public class ReviewService {
     public ReviewDto createReview(Review review) {
         userService.getUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
-        return ReviewMapper.mapToReviewDto(reviewRepository.save(review));
+        ReviewDto reviewDto = ReviewMapper.mapToReviewDto(reviewRepository.save(review));
+        eventService.addEvent(review.getUserId(), review.getFilmId(), EventType.REVIEW, OperationType.ADD);
+        return reviewDto;
     }
 
     //PUT /reviews
@@ -54,13 +60,15 @@ public class ReviewService {
         oldReview.setContent(newReview.getContent());
         oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);
+        eventService.addEvent(newReview.getUserId(), newReview.getFilmId(), EventType.REVIEW, OperationType.UPDATE);
         return ReviewMapper.mapToReviewDto(oldReview);
     }
 
     //DELETE /reviews/{id}
     public void deleteReview(Long reviewId) {
-        getReviewById(reviewId);
+        ReviewDto review = getReviewById(reviewId);
         reviewRepository.delete(reviewId);
+        eventService.addEvent(review.getUserId(), review.getFilmId(), EventType.REVIEW, OperationType.REMOVE);
     }
 
     //PUT /reviews/{id}/like/{userId}

@@ -8,9 +8,12 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.director.Director;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.service.director.DirectorService;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
@@ -25,6 +28,7 @@ public class FilmService {
     private final GenreService genreService;
     private final MpaService mpaService;
     private final DirectorService directorService;
+    private final EventService eventService;
 
     public FilmDto getFilmById(Long filmId) {
         return filmRepository.findById(filmId)
@@ -82,13 +86,15 @@ public class FilmService {
         getFilmById(filmId);
         log.info("Добавление лайка пользователем с id - {} к фильму с id - {}", userId, filmId);
         filmRepository.addLike(filmId, userId);
+        eventService.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
     }
 
     public void deleteLike(Long filmId, Long userId) {
         //вызов метода получения фильма по id для проверки его существования
         getFilmById(filmId);
-        filmRepository.deleteLike(filmId, userId);
         log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
+        filmRepository.deleteLike(filmId, userId);
+        eventService.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
     }
 
     public Collection<FilmDto> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {

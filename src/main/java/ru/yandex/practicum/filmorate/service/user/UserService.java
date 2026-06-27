@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final FilmRepository filmRepository;
+    private final EventService eventService;
 
     public UserDto getUserById(Long userId) {
         return userRepository.findById(userId)
@@ -67,6 +71,7 @@ public class UserService {
         getUserById(friendId);
         log.info("Добавление в друзья пользователей с id - {}, {}", userId, friendId);
         friendshipRepository.addFriend(userId, friendId);
+        eventService.addEvent(userId, friendId, EventType.FRIEND, OperationType.ADD);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -75,6 +80,7 @@ public class UserService {
         getUserById(friendId);
         log.info("Удаление из друзей пользователей с id - {}, {}", userId, friendId);
         friendshipRepository.deleteFriend(userId, friendId);
+        eventService.addEvent(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
     }
 
     public Collection<UserDto> getCommonFriendsList(Long userId, Long otherUserId) {
