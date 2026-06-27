@@ -74,7 +74,7 @@ public class GetCommonFilmsTest extends FilmTest {
 
     //проверка сортировки по популярности
     @Test
-    public void testUnknownUser() throws Exception {
+    public void testSortingCommonList() throws Exception {
         Long idFilm1 = getIdFromObject(createFilm(film));
         Long idFilm2 = getIdFromObject(createFilm(film));
         Long idFilm3 = getIdFromObject(createFilm(film));

@@ -44,14 +44,13 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
-    private static final String SEARCH_COMMON_FILMS = "SELECT f.* FROM films f " +
-            "INNER JOIN FILM_LIKES fl ON fl.film_id = f.id " +
-            "WHERE f.id IN ( " +
-            "SELECT film_id FROM FILM_LIKES WHERE user_id = ? " +
-            "INTERSECT " +
-            "SELECT film_id FROM FILM_LIKES WHERE user_id = ?) " +
-            "GROUP BY f.id " +
-            "ORDER BY count(fl.user_id) DESC";
+    private static final String SEARCH_COMMON_FILMS = FIND_ALL_QUERY +
+            " WHERE f.id IN ( " +
+            "    SELECT film_id FROM film_likes WHERE user_id = ? " +
+            "    INTERSECT " +
+            "    SELECT film_id FROM film_likes WHERE user_id = ? ) " +
+            " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
+
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -200,6 +199,21 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        return findMany(SEARCH_COMMON_FILMS, userId, friendId);
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                //если genreId не null то добавляем его в сет
+                setGenre(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
 }
