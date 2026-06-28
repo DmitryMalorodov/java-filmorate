@@ -68,7 +68,7 @@ public class FilmController {
             @PathVariable Long directorId,
             @RequestParam(defaultValue = "likes") String sortBy) {
 
-        if (!"likes".equalsIgnoreCase(sortBy) && !"year".equalsIgnoreCase(sortBy)) {
+        if (!sortBy.equalsIgnoreCase("likes") && !sortBy.equalsIgnoreCase("year")) {
             throw new ValidationException("Параметр sortBy может быть только 'likes' или 'year'");
         }
         return filmService.getFilmsByDirector(directorId, sortBy);

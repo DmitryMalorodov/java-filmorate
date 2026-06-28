@@ -58,6 +58,8 @@ public class FilmRepository extends BaseRepository<Film> {
             "WHERE fd.director_id = ?" +
             "GROUP BY f.id" +
             "ORDER BY f.release_date ASC, f.id ASC";
+    private static final String INSERT_DIRECTORS = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+    private static final String DELETE_DIRECTORS = "DELETE FROM film_directors WHERE film_id = ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -73,7 +75,8 @@ public class FilmRepository extends BaseRepository<Film> {
                     setFilmFields(film, filmId, rs);
                 }
                 //если genreId не null то добавляем его в сет
-                setGenre(rs, film); 
+                setGenre(rs, film);
+                setDirector(rs, film);
             }
 
             return Optional.ofNullable(film);
@@ -96,6 +99,7 @@ public class FilmRepository extends BaseRepository<Film> {
                 }
                 //если genreId не null то добавляем его в сет
                 setGenre(rs, film);
+                setDirector(rs, film);
             }
 
             return new ArrayList<>(filmMap.values());
@@ -114,6 +118,16 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
+    private void setDirector(ResultSet rs, Film film) throws SQLException {
+        int directorId = rs.getInt("director_id");
+        if (!rs.wasNull()) {
+            Director director = new Director();
+            director.setId((long) directorId);
+            director.setName(rs.getString("director_name"));
+            film.getDirectors().add(director);
+        }
+    }
+
     private void setFilmFields(Film film, Long filmId, ResultSet rs) throws SQLException {
         film.setId(filmId);
         film.setName(rs.getString("name"));
@@ -121,6 +135,7 @@ public class FilmRepository extends BaseRepository<Film> {
         film.setReleaseDate(rs.getDate("release_date") != null ? rs.getDate("release_date").toLocalDate() : null);
         film.setDuration(rs.getInt("duration"));
         film.setGenres(new LinkedHashSet<>());
+        film.setDirectors(new LinkedHashSet<>());
 
         int mpaId = rs.getInt("mpa_id");
         if (!rs.wasNull()) {
@@ -152,6 +167,10 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            setDirectorsToDB(film);
+        }
+
         return film;
     }
 
@@ -175,6 +194,13 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
+        if (film.getDirectors() != null) {
+            update(DELETE_DIRECTORS, film.getId());
+            if (!film.getDirectors().isEmpty()) {
+                setDirectorsToDB(film);
+            }
+        }
+
         return film;
     }
 
@@ -183,6 +209,14 @@ public class FilmRepository extends BaseRepository<Film> {
                 (ps, genre) -> {
                     ps.setLong(1, film.getId());
                     ps.setInt(2, genre.getId());
+                });
+    }
+
+    private void setDirectorsToDB(Film film) {
+        jdbc.batchUpdate(INSERT_DIRECTORS, film.getDirectors(), film.getDirectors().size(),
+                (ps, director) -> {
+                    ps.setLong(1, film.getId());
+                    ps.setLong(2, director.getId());
                 });
     }
 
