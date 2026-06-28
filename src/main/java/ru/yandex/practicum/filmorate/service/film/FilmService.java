@@ -127,4 +127,11 @@ public class FilmService {
                 toList();
     }
 
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
 }

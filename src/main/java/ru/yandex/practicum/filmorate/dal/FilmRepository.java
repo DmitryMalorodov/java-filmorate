@@ -312,5 +312,22 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
         return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                //если genreId не null то добавляем его в сет
+                setGenre(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
 }

@@ -81,5 +81,10 @@ public class FilmController {
             throw new ValidationException("Параметр sortBy может быть только 'likes' или 'year'");
         }
         return filmService.getFilmsByDirector(directorId, sortBy);
+    @GetMapping("/common")
+    public Collection<FilmDto> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }
