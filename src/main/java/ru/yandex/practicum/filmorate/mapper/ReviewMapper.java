@@ -10,7 +10,7 @@ public class ReviewMapper {
 
     public static ReviewDto mapToReviewDto(Review review) {
         return ReviewDto.builder()
-                .id(review.getId())
+                .reviewId(review.getId())
                 .content(review.getContent())
                 .isPositive(review.getIsPositive())
                 .userId(review.getUserId())
@@ -23,7 +23,7 @@ public class ReviewMapper {
 
     public static Review mapToReview(ReviewDto reviewDto) {
         return Review.builder()
-                .id(reviewDto.getId())
+                .id(reviewDto.getReviewId())
                 .content(reviewDto.getContent())
                 .isPositive(reviewDto.getIsPositive())
                 .userId(reviewDto.getUserId())
