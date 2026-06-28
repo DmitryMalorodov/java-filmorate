@@ -9,17 +9,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DirectorRepository extends BaseRepository<Director>{
+public class DirectorRepository extends BaseRepository<Director> {
 
     private static final String FIND_ALL = "SELECT * FROM directors ORDER BY id";
     private static final String FIND_BY_ID = "SELECT * FROM directors WHERE id = ?";
     private static final String INSERT = "INSERT INTO directors (name) VALUES (?)";
     private static final String UPDATE = "UPDATE directors SET name = ? WHERE id = ?";
     private static final String DELETE = "DELETE FROM directors WHERE id = ?";
-    private static final String FIND_DIRECTORS_BY_FILM_ID = "SELECT d.* FROM directors d" +
-            "JOIN film_directors fd ON d.id = fd.director_id" +
-            "WHERE fd.film_id = ?" +
-            "ORDER BY d.id";
+    private static final String FIND_DIRECTORS_BY_FILM_ID =
+            "SELECT d.* FROM directors d " +
+                    "JOIN film_directors fd ON d.id = fd.director_id " +
+                    "WHERE fd.film_id = ? " +
+                    "ORDER BY d.id";
 
     public DirectorRepository(JdbcTemplate jdbc, DirectorRowMapper mapper) {
         super(jdbc, mapper);
@@ -48,8 +49,7 @@ public class DirectorRepository extends BaseRepository<Director>{
         return delete(DELETE, id);
     }
 
-    public List<Director> findDirectorsByFilmId (Long filmId) {
+    public List<Director> findDirectorsByFilmId(Long filmId) {
         return findMany(FIND_DIRECTORS_BY_FILM_ID, filmId);
     }
-
 }
