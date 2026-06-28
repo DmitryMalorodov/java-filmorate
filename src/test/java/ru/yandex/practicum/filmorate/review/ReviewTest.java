@@ -42,9 +42,9 @@ public class ReviewTest extends MainTest {
     }
 
     protected void checkReview(Review actual, Review expected, SoftAssertions softAssert) {
-        softAssert.assertThat(actual.getReviewId())
+        softAssert.assertThat(actual.getId())
                 .as("reviewId")
-                .isEqualTo(expected.getReviewId());
+                .isEqualTo(expected.getId());
 
         softAssert.assertThat(actual.getContent())
                 .as("content")
