@@ -57,6 +57,6 @@ public class MainTest {
         return JsonPath.parse(response
                 .andReturn()
                 .getResponse()
-                .getContentAsString()).read("$.reviewId", Long.class);
+                .getContentAsString()).read("$.id", Long.class);
     }
 }
