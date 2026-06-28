@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.director.Director;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public class DirectorRepository extends BaseRepository<Director> {
 
@@ -25,6 +26,7 @@ public class DirectorRepository extends BaseRepository<Director> {
     public DirectorRepository(JdbcTemplate jdbc, DirectorRowMapper mapper) {
         super(jdbc, mapper);
     }
+
 
     public List<Director> findAll() {
         return findMany(FIND_ALL);
