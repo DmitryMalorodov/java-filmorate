@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model.review;
 
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,6 +11,7 @@ import lombok.Data;
 @Data
 @Builder(toBuilder = true)
 public class Review {
+    @JsonAlias("reviewId")
     private Long id;
 
     @NotBlank(message = "Содержание отзыва не может быть пустым")
