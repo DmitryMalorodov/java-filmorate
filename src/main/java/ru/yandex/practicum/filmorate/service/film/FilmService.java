@@ -26,9 +26,7 @@ public class FilmService {
     private final FilmRepository filmRepository;
     private final GenreService genreService;
     private final MpaService mpaService;
-    private final GenreRepository genreRepository;
     private final DirectorService directorService;
-    private final DirectorRepository directorRepository;
 
     public FilmDto getFilmById(Long filmId) {
         return filmRepository.findById(filmId).map(FilmMapper::mapToFilmDto).orElseThrow(() -> new NotFoundException("Фильм не найден с id: " + filmId));
@@ -47,7 +45,7 @@ public class FilmService {
         mpaService.getMpaById(film.getMpa().getId());
 
         boolean isDirectorsExist = film.getDirectors().stream().map(Director::getId).allMatch(directorId -> directorService.findAll().stream().anyMatch(directorDB -> directorDB.getId().equals(directorId)));
-        if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
+        if (!isDirectorsExist) throw new NotFoundException("Переданные жанры не найдены");
 
         log.info("Создание фильма {}", film);
         film = filmRepository.save(film);
