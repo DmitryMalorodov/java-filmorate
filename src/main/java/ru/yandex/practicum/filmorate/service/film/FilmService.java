@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
