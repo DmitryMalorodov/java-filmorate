@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeDate;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
+import ru.yandex.practicum.filmorate.model.director.Director;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -42,4 +43,6 @@ public class Film {
 
     @Builder.Default
     private Set<Genre> genres = new LinkedHashSet<>();
+
+    private Set<Director> directors = new LinkedHashSet<>();
 }

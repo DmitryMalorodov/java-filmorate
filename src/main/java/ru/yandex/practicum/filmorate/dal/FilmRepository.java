@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.model.director.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.model.film.Mpa;
@@ -45,6 +46,19 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
 
+    private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES= "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f" +
+            "LEFT JOIN film_likes AS fl  ON f.id = fl.film_id" +
+            "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" +
+            "WHERE fd.director_id = ?" +
+            "GROUP BY f.id" +
+            "ORDER BY likes_count DESC, f.id ASC";
+
+    private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR= "SELECT f.* FROM films f" +
+            "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" +
+            "WHERE fd.director_id = ?" +
+            "GROUP BY f.id" +
+            "ORDER BY f.release_date ASC, f.id ASC";
+
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
     }
@@ -59,7 +73,7 @@ public class FilmRepository extends BaseRepository<Film> {
                     setFilmFields(film, filmId, rs);
                 }
                 //если genreId не null то добавляем его в сет
-                setGenre(rs, film);
+                setGenre(rs, film); 
             }
 
             return Optional.ofNullable(film);
@@ -189,5 +203,13 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public void deleteFilm(Long filmId) {
         delete(DELETE_FILM_QUERY, filmId);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByLikes (Long directorId) {
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, directorId);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
     }
 }

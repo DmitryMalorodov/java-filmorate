@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -60,5 +61,16 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable final Long id) {
         filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<FilmDto> getFilmsByDirector(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "likes") String sortBy) {
+
+        if (!"likes".equalsIgnoreCase(sortBy) && !"year".equalsIgnoreCase(sortBy)) {
+            throw new ValidationException("Параметр sortBy может быть только 'likes' или 'year'");
+        }
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 }
