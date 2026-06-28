@@ -53,10 +53,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<FilmDto> getPopularFilms(
-            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count,
-            @RequestParam(required = false) final Integer genreId,
-            @RequestParam(required = false) final Integer year) {
+    public Collection<FilmDto> getPopularFilms(@Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count, @RequestParam(required = false) final Integer genreId, @RequestParam(required = false) final Integer year) {
         return filmService.getMostPopularFilms(count, genreId, year);
     }
 
@@ -66,25 +63,16 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public Collection<FilmDto> getCommonFilms(
-            @RequestParam Long userId,
-            @RequestParam Long friendId) {
+    public Collection<FilmDto> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 
     @GetMapping("/director/{directorId}")
-    public Collection<FilmDto> getFilmsByDirector(
-            @PathVariable Long directorId,
-            @RequestParam(defaultValue = "likes") String sortBy) {
+    public Collection<FilmDto> getFilmsByDirector(@PathVariable Long directorId, @RequestParam(defaultValue = "likes") String sortBy) {
 
         if (!sortBy.equalsIgnoreCase("likes") && !sortBy.equalsIgnoreCase("year")) {
             throw new ValidationException("Параметр sortBy может быть только 'likes' или 'year'");
         }
         return filmService.getFilmsByDirector(directorId, sortBy);
-    @GetMapping("/common")
-    public Collection<FilmDto> getCommonFilms(
-            @RequestParam Long userId,
-            @RequestParam Long friendId) {
-        return filmService.getCommonFilms(userId, friendId);
     }
 }

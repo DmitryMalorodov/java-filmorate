@@ -16,59 +16,27 @@ import java.util.*;
 
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
-    private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
-            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " +
-            "FROM films f " +
-            "LEFT JOIN mpa m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-            "LEFT JOIN genres g ON fg.genre_id = g.id";
-    private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
-            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " +
-            "FROM films f " +
-            "LEFT JOIN mpa m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-            "LEFT JOIN genres g ON fg.genre_id = g.id " +
-            "WHERE f.id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_id)" +
-            "VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?," +
-            " duration = ?, mpa_id = ? WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " + "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " + "FROM films f " + "LEFT JOIN mpa m ON f.mpa_id = m.id " + "LEFT JOIN film_genres fg ON f.id = fg.film_id " + "LEFT JOIN genres g ON fg.genre_id = g.id";
+    private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " + "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " + "FROM films f " + "LEFT JOIN mpa m ON f.mpa_id = m.id " + "LEFT JOIN film_genres fg ON f.id = fg.film_id " + "LEFT JOIN genres g ON fg.genre_id = g.id " + "WHERE f.id = ?";
+    private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_id)" + "VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?," + " duration = ?, mpa_id = ? WHERE id = ?";
     private static final String FIND_LIKE_QUERY = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
-    private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" +
-            "VALUES (?, ?)";
+    private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" + "VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
-    private static final String SEARCH_COMMON_FILMS = FIND_ALL_QUERY +
-            " WHERE f.id IN ( " +
-            "    SELECT film_id FROM film_likes WHERE user_id = ? " +
-            "    INTERSECT " +
-            "    SELECT film_id FROM film_likes WHERE user_id = ? ) " +
-            " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
+    private static final String SEARCH_COMMON_FILMS = FIND_ALL_QUERY + " WHERE f.id IN ( " + "    SELECT film_id FROM film_likes WHERE user_id = ? " + "    INTERSECT " + "    SELECT film_id FROM film_likes WHERE user_id = ? ) " + " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
 
 
-    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
-            "FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " + "FROM films f " + "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
     private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
-    private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
-            "ORDER BY likes_count DESC, f.id ASC " +
-            "LIMIT ?";
+    private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " + "ORDER BY likes_count DESC, f.id ASC " + "LIMIT ?";
 
-    private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES= "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f" +
-            "LEFT JOIN film_likes AS fl  ON f.id = fl.film_id" +
-            "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" +
-            "WHERE fd.director_id = ?" +
-            "GROUP BY f.id" +
-            "ORDER BY likes_count DESC, f.id ASC";
+    private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES = "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f" + "LEFT JOIN film_likes AS fl  ON f.id = fl.film_id" + "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" + "WHERE fd.director_id = ?" + "GROUP BY f.id" + "ORDER BY likes_count DESC, f.id ASC";
 
-    private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR= "SELECT f.* FROM films f" +
-            "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" +
-            "WHERE fd.director_id = ?" +
-            "GROUP BY f.id" +
-            "ORDER BY f.release_date ASC, f.id ASC";
+    private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR = "SELECT f.* FROM films f" + "LEFT JOIN film_directors AS fd ON f.id = fd.film_id" + "WHERE fd.director_id = ?" + "GROUP BY f.id" + "ORDER BY f.release_date ASC, f.id ASC";
     private static final String INSERT_DIRECTORS = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
     private static final String DELETE_DIRECTORS = "DELETE FROM film_directors WHERE film_id = ?";
 
@@ -198,14 +166,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     @Transactional
     public Film save(Film film) {
-        long id = insert(
-                INSERT_QUERY,
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa() != null ? film.getMpa().getId() : null
-        );
+        long id = insert(INSERT_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().getId() : null);
         film.setId(id);
 
         //если список жанров не пустой - сохраняем в бд
@@ -222,15 +183,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     @Transactional
     public Film update(Film film) {
-        update(
-                UPDATE_QUERY,
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa() != null ? film.getMpa().getId() : null,
-                film.getId()
-        );
+        update(UPDATE_QUERY, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa() != null ? film.getMpa().getId() : null, film.getId());
 
         //если список жанров не пустой - сохраняем в бд
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
@@ -251,19 +204,17 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     private void setGenresToDB(Film film) {
-        jdbc.batchUpdate(INSERT_GENRES_QUERY, film.getGenres(), film.getGenres().size(),
-                (ps, genre) -> {
-                    ps.setLong(1, film.getId());
-                    ps.setInt(2, genre.getId());
-                });
+        jdbc.batchUpdate(INSERT_GENRES_QUERY, film.getGenres(), film.getGenres().size(), (ps, genre) -> {
+            ps.setLong(1, film.getId());
+            ps.setInt(2, genre.getId());
+        });
     }
 
     private void setDirectorsToDB(Film film) {
-        jdbc.batchUpdate(INSERT_DIRECTORS, film.getDirectors(), film.getDirectors().size(),
-                (ps, director) -> {
-                    ps.setLong(1, film.getId());
-                    ps.setLong(2, director.getId());
-                });
+        jdbc.batchUpdate(INSERT_DIRECTORS, film.getDirectors(), film.getDirectors().size(), (ps, director) -> {
+            ps.setLong(1, film.getId());
+            ps.setLong(2, director.getId());
+        });
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -304,30 +255,12 @@ public class FilmRepository extends BaseRepository<Film> {
         return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
 
-    ;
-
-    public List<Film> getFilmsByDirectorSortedByLikes (Long directorId) {
+    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
         return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, directorId);
     }
 
     public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
         return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
-    public List<Film> getCommonFilms(Long userId, Long friendId) {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                //если genreId не null то добавляем его в сет
-                setGenre(rs, film);
-            }
-            return new ArrayList<>(filmMap.values());
-        };
-        return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
+
 }

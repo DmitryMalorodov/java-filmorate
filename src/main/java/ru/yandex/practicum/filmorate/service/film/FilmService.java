@@ -32,33 +32,22 @@ public class FilmService {
     private final DirectorRepository directorRepository;
 
     public FilmDto getFilmById(Long filmId) {
-        return filmRepository.findById(filmId)
-                .map(FilmMapper::mapToFilmDto)
-                .orElseThrow(() -> new NotFoundException("Фильм не найден с id: " + filmId));
+        return filmRepository.findById(filmId).map(FilmMapper::mapToFilmDto).orElseThrow(() -> new NotFoundException("Фильм не найден с id: " + filmId));
     }
 
     public Collection<FilmDto> getFilms() {
-        return filmRepository.findAll()
-                .stream()
-                .map(FilmMapper::mapToFilmDto)
-                .toList();
+        return filmRepository.findAll().stream().map(FilmMapper::mapToFilmDto).toList();
     }
 
     public FilmDto createFilm(Film film) {
         //проверка, что переданные id жанров существуют в БД
-        boolean isGenresExist = film.getGenres().stream()
-                .map(Genre::getId)
-                .allMatch(genreId -> genreService.getGenres().stream()
-                        .anyMatch(genreDB -> genreDB.getId().equals(genreId)));
+        boolean isGenresExist = film.getGenres().stream().map(Genre::getId).allMatch(genreId -> genreService.getGenres().stream().anyMatch(genreDB -> genreDB.getId().equals(genreId)));
         if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
 
         //проверка, что переданный id mpa существует в БД
         mpaService.getMpaById(film.getMpa().getId());
 
-        boolean isDirectorsExist = film.getDirectors().stream()
-                .map(Director::getId)
-                .allMatch(directorId -> directorService.findAll().stream()
-                        .anyMatch(directorDB -> directorDB.getId().equals(directorId)));
+        boolean isDirectorsExist = film.getDirectors().stream().map(Director::getId).allMatch(directorId -> directorService.findAll().stream().anyMatch(directorDB -> directorDB.getId().equals(directorId)));
         if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
 
         log.info("Создание фильма {}", film);
@@ -97,10 +86,7 @@ public class FilmService {
 
     public Collection<FilmDto> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
-        return filmRepository.getPopularFilms(limit, genreId, year)
-                .stream()
-                .map(FilmMapper::mapToFilmDto)
-                .toList();
+        return filmRepository.getPopularFilms(limit, genreId, year).stream().map(FilmMapper::mapToFilmDto).toList();
     }
 
     public void deleteFilm(Long filmId) {
@@ -110,28 +96,14 @@ public class FilmService {
     }
 
     public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
-        return filmRepository.getCommonFilms(userId, friendId)
-                .stream()
-                .map(FilmMapper::mapToFilmDto)
-                .toList();
+        return filmRepository.getCommonFilms(userId, friendId).stream().map(FilmMapper::mapToFilmDto).toList();
     }
 
 
     public List<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
-        List<Film> films = sortBy.equalsIgnoreCase("year")
-                ? filmRepository.getFilmsByDirectorSortedByYear(directorId)
-                : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
+        List<Film> films = sortBy.equalsIgnoreCase("year") ? filmRepository.getFilmsByDirectorSortedByYear(directorId) : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
 
-        return films.stream()
-                .map(FilmMapper::mapToFilmDto).
-                toList();
-    }
-
-    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
-        return filmRepository.getCommonFilms(userId, friendId)
-                .stream()
-                .map(FilmMapper::mapToFilmDto)
-                .toList();
+        return films.stream().map(FilmMapper::mapToFilmDto).toList();
     }
 
 }
