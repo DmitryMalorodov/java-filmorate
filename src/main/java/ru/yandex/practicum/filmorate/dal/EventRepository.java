@@ -14,7 +14,7 @@ import java.util.List;
 public class EventRepository extends BaseRepository<Event> {
     private static final String FIND_ALL_QUERY = "SELECT * FROM user_events " +
             "WHERE user_id = ? " +
-            "ORDER BY created_at DESC";
+            "ORDER BY created_at ASC";
     private static final String ADD_EVENT_QUERY = "INSERT INTO user_events(user_id, entity_id, event_type, operation, created_at)" +
             "VALUES (?, ?, ?, ?, ?)";
 
