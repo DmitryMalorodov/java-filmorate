@@ -9,10 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.review.Review;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,5 +59,26 @@ public class MainTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString()).read("$.reviewId", Long.class);
+    }
+
+    protected ResultActions createReviewRequest(Review review) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post("/reviews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(review)));
+    }
+
+    protected Review createReview(Review review) throws Exception {
+        String content = createReviewRequest(review)
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return objectMapper.readValue(content, Review.class);
+    }
+
+    protected ResultActions changeReview(Review review) throws Exception {
+        return mockMvc.perform(put("/reviews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(review)));
     }
 }
