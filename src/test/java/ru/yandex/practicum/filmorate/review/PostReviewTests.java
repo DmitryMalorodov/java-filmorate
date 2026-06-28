@@ -79,7 +79,7 @@ public class PostReviewTests extends ReviewTest {
 
         Review savedReview = reviewRepository.save(reviewToSave);
 
-        Assertions.assertNotNull(savedReview.getReviewId());
+        Assertions.assertNotNull(savedReview.getId());
         Assertions.assertEquals(reviewToSave.getContent(), savedReview.getContent());
         Assertions.assertEquals(reviewToSave.getIsPositive(), savedReview.getIsPositive());
     }

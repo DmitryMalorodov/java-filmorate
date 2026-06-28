@@ -32,15 +32,15 @@ public class AddLikeToReviewTests extends ReviewTest {
         Long userId = getIdFromObject(createUser(user));
         Long filmId = getIdFromObject(createFilm(film));
 
-        Long reviewId = getReviewIdFromObject(createReviewRequest(review.toBuilder()
+        Long id = getReviewIdFromObject(createReviewRequest(review.toBuilder()
                 .userId(userId)
                 .filmId(filmId)
                 .build()));
 
-        mockMvc.perform(put(REVIEWS_ID_LIKE, reviewId, userId))
+        mockMvc.perform(put(REVIEWS_ID_LIKE, id, userId))
                 .andExpect(status().isOk());
 
-        Assertions.assertTrue(reviewReactionRepository.getReactionType(reviewId, userId)
+        Assertions.assertTrue(reviewReactionRepository.getReactionType(id, userId)
                 .filter(rt -> rt.equals(ReactionType.LIKE.name()))
                 .isPresent());
     }
@@ -60,14 +60,14 @@ public class AddLikeToReviewTests extends ReviewTest {
         Long userId = getIdFromObject(createUser(user));
         Long filmId = getIdFromObject(createFilm(film));
 
-        Long reviewId = getReviewIdFromObject(createReviewRequest(review.toBuilder()
+        Long id = getReviewIdFromObject(createReviewRequest(review.toBuilder()
                 .userId(userId)
                 .filmId(filmId)
                 .build()));
 
-        reviewReactionRepository.addReaction(reviewId, userId, ReactionType.LIKE);
+        reviewReactionRepository.addReaction(id, userId, ReactionType.LIKE);
 
-        Assertions.assertTrue(reviewReactionRepository.getReactionType(reviewId, userId)
+        Assertions.assertTrue(reviewReactionRepository.getReactionType(id, userId)
                 .filter(rt -> rt.equals(ReactionType.LIKE.name()))
                 .isPresent());
     }

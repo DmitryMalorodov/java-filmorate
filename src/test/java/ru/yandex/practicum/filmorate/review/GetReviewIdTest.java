@@ -68,7 +68,7 @@ public class GetReviewIdTest extends ReviewTest {
 
         SoftAssertions softAssert = new SoftAssertions();
         checkReview(optReview.get(), review.toBuilder()
-                .reviewId(reviewId)
+                .id(reviewId)
                 .userId(userId)
                 .filmId(filmId)
                 .build(), softAssert);

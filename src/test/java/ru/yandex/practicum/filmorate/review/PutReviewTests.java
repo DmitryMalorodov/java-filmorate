@@ -33,7 +33,7 @@ public class PutReviewTests extends ReviewTest {
                 .build());
 
         Review updatedReview = review.toBuilder()
-                .reviewId(created.getReviewId())
+                .id(created.getId())
                 .content("Обновленный отзыв — стал ещё лучше!")
                 .isPositive(false)
                 .userId(userId)
@@ -42,7 +42,7 @@ public class PutReviewTests extends ReviewTest {
 
         changeReview(updatedReview)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reviewId").value(created.getReviewId()))
+                .andExpect(jsonPath("$.reviewId").value(created.getId()))
                 .andExpect(jsonPath("$.content").value(updatedReview.getContent()))
                 .andExpect(jsonPath("$.isPositive").value(false));
     }
@@ -105,7 +105,7 @@ public class PutReviewTests extends ReviewTest {
                 .build());
 
         Review updated = review.toBuilder()
-                .reviewId(created.getReviewId())
+                .id(created.getId())
                 .content("Обновленный контент в БД")
                 .isPositive(false)
                 .userId(userId)

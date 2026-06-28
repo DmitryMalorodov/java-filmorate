@@ -32,15 +32,15 @@ public class AddDislikeToReviewTests extends ReviewTest {
         Long userId = getIdFromObject(createUser(user));
         Long filmId = getIdFromObject(createFilm(film));
 
-        Long reviewId = getReviewIdFromObject(createReviewRequest(review.toBuilder()
+        Long id = getReviewIdFromObject(createReviewRequest(review.toBuilder()
                 .userId(userId)
                 .filmId(filmId)
                 .build()));
 
-        mockMvc.perform(put(REVIEWS_ID_DISLIKE, reviewId, userId))
+        mockMvc.perform(put(REVIEWS_ID_DISLIKE, id, userId))
                 .andExpect(status().isOk());
 
-        Assertions.assertTrue(reviewReactionRepository.getReactionType(reviewId, userId)
+        Assertions.assertTrue(reviewReactionRepository.getReactionType(id, userId)
                 .filter(rt -> rt.equals(ReactionType.DISLIKE.name()))
                 .isPresent());
     }

@@ -36,9 +36,9 @@ public class GetReviewsTests extends ReviewTest {
                 .filmId(filmId)
                 .build());
 
-        mockMvc.perform(get(REVIEWS_ID, created.getReviewId()))
+        mockMvc.perform(get(REVIEWS_ID, created.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reviewId").value(created.getReviewId()))
+                .andExpect(jsonPath("$.reviewId").value(created.getId()))
                 .andExpect(jsonPath("$.content").value(review.getContent()))
                 .andExpect(jsonPath("$.isPositive").value(review.getIsPositive()))
                 .andExpect(jsonPath("$.userId").value(userId))
@@ -64,7 +64,7 @@ public class GetReviewsTests extends ReviewTest {
                 .filmId(filmId)
                 .build());
 
-        Optional<Review> optReview = reviewRepository.findById(created.getReviewId());
+        Optional<Review> optReview = reviewRepository.findById(created.getId());
         Assertions.assertTrue(optReview.isPresent());
 
         SoftAssertions softAssert = new SoftAssertions();
