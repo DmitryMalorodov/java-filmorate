@@ -23,7 +23,7 @@ public class GenreService {
                 .toList();
     }
 
-    public GenreDto getGenreById(Integer genreId) {
+    public GenreDto getGenreById(Long genreId) {
         return genreRepository.findById(genreId)
                 .map(GenreMapper::mapToGenreDto)
                 .orElseThrow(() -> new NotFoundException("Жанр не найден с id: " + genreId));
