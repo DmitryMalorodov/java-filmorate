@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @Builder(toBuilder = true)
 public class Review {
-    private Long reviewId;
+    private Long id;
 
     @NotBlank(message = "Содержание отзыва не может быть пустым")
     @Size(max = 255, message = "Содержание отзыва не может быть длиннее 255 символов")

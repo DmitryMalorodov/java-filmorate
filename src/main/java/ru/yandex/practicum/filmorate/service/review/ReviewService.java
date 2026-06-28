@@ -49,8 +49,8 @@ public class ReviewService {
 
     //PUT /reviews
     public ReviewDto updateReview(Review newReview) {
-        Review oldReview = reviewRepository.findById(newReview.getReviewId())
-                .orElseThrow(() -> new NotFoundException("Отзыв не найден с id: " + newReview.getReviewId()));
+        Review oldReview = reviewRepository.findById(newReview.getId())
+                .orElseThrow(() -> new NotFoundException("Отзыв не найден с id: " + newReview.getId()));
         oldReview.setContent(newReview.getContent());
         oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);

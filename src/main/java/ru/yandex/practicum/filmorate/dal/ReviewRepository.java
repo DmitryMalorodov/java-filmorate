@@ -62,7 +62,7 @@ public class ReviewRepository extends BaseRepository<Review> {
                 review.getUserId(),
                 review.getFilmId()
         );
-        review.setReviewId(reviewId);
+        review.setId(reviewId);
         review.setUseful(0);
         review.setLikesCount(0);
         review.setDislikesCount(0);
@@ -77,7 +77,7 @@ public class ReviewRepository extends BaseRepository<Review> {
                 review.getUserId(),
                 review.getFilmId(),
                 review.getUseful(),
-                review.getReviewId()
+                review.getId()
         );
         return review;
     }
