@@ -16,8 +16,28 @@ import java.util.*;
 
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
-    private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " + "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " + "FROM films f " + "LEFT JOIN mpa m ON f.mpa_id = m.id " + "LEFT JOIN film_genres fg ON f.id = fg.film_id " + "LEFT JOIN genres g ON fg.genre_id = g.id";
-    private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " + "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " + "FROM films f " + "LEFT JOIN mpa m ON f.mpa_id = m.id " + "LEFT JOIN film_genres fg ON f.id = fg.film_id " + "LEFT JOIN genres g ON fg.genre_id = g.id " + "WHERE f.id = ?";
+    private static final String FIND_ALL_QUERY =
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name " +  // ← добавить
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +  // ← добавить
+                    "LEFT JOIN directors d ON fd.director_id = d.id";      // ← добавить
+
+    private static final String FIND_BY_ID_QUERY =
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name " +  // ← добавить
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +  // ← добавить
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +   // ← добавить
+                    "WHERE f.id = ?";
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_id)" + "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?," + " duration = ?, mpa_id = ? WHERE id = ?";
     private static final String FIND_LIKE_QUERY = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
