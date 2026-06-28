@@ -37,14 +37,25 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes(film_id, user_id)" +
             "VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
-    private static final String POPULAR_FILMS_QUERY = "SELECT f.* FROM films f " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC " +
-            "LIMIT ?";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
+    private static final String SEARCH_COMMON_FILMS = FIND_ALL_QUERY +
+            " WHERE f.id IN ( " +
+            "    SELECT film_id FROM film_likes WHERE user_id = ? " +
+            "    INTERSECT " +
+            "    SELECT film_id FROM film_likes WHERE user_id = ? ) " +
+            " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
+
+
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
+            "FROM films f " +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
+    private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
+    private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
+    private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
+            "ORDER BY likes_count DESC, f.id ASC " +
+            "LIMIT ?";
 
     private static final  String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES= "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f" +
             "LEFT JOIN film_likes AS fl  ON f.id = fl.film_id" +
@@ -131,8 +142,43 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
-    public List<Film> getPopularFilms(int limit) {
-        return findMany(POPULAR_FILMS_QUERY, limit);
+    public List<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
+        List<Integer> params = new ArrayList<>();
+        String sqlQuery = getPopularFilmsSqlQuery(genreId, year, params);
+        params.add(limit);
+        return findMany(sqlQuery, params.toArray());
+    }
+
+    private String getPopularFilmsSqlQuery(Integer genreId, Integer year, List<Integer> params) {
+        StringBuilder sqlQuery = new StringBuilder(POPULAR_FILMS_BASE_QUERY);
+
+        boolean hasGenre = genreId != null;
+        boolean hasYear = year != null;
+
+        //если жанр передан, то присоединяем таблицу связей жанров с фильмами
+        if (hasGenre) {
+            sqlQuery.append(JOIN_FILM_GENRES_QUERY);
+        }
+
+        //если хотя бы один параметр передан (год/жанр) то добавляем в запрос фильтрацию
+        if (hasYear || hasGenre) {
+            sqlQuery.append("WHERE ");
+            if (hasYear) {
+                sqlQuery.append(EXTRACT_YEAR_QUERY);
+                params.add(year);
+            }
+            if (hasGenre) {
+                if (hasYear) {
+                    sqlQuery.append("AND ");
+                }
+                sqlQuery.append("fg.genre_id = ? ");
+                params.add(genreId);
+            }
+        }
+
+        sqlQuery.append(GROUP_ORDER_LIMIT_QUERY);
+
+        return sqlQuery.toString();
     }
 
     @Transactional
@@ -211,5 +257,22 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
         return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                //если genreId не null то добавляем его в сет
+                setGenre(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
 }
