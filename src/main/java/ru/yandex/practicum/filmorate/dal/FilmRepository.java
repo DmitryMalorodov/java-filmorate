@@ -230,7 +230,7 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
-        if(film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             setDirectorsToDB(film);
         }
 
