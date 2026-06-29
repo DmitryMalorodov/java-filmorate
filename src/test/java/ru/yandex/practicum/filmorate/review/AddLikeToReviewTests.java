@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.constant.message.ReviewValidationMessages.REVIEW_NOT_FOUND_MESSAGE;
 import static ru.yandex.practicum.filmorate.films.FilmData.film;
-import static ru.yandex.practicum.filmorate.review.ReviewData.*;
+import static ru.yandex.practicum.filmorate.review.ReviewData.review;
 import static ru.yandex.practicum.filmorate.users.UserData.user;
 
 @DisplayName("Проверка добавления лайка к отзыву")

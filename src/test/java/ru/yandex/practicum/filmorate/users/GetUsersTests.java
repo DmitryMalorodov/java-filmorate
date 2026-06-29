@@ -13,7 +13,8 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.users.UserData.*;
+import static ru.yandex.practicum.filmorate.users.UserData.user;
+import static ru.yandex.practicum.filmorate.users.UserData.user2;
 
 @DisplayName("Проверка получения пользователей")
 public class GetUsersTests extends UserTest {

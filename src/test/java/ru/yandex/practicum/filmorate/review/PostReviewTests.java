@@ -9,9 +9,11 @@ import ru.yandex.practicum.filmorate.model.review.Review;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.yandex.practicum.filmorate.constant.message.ReviewValidationMessages.*;
+import static ru.yandex.practicum.filmorate.constant.message.ReviewValidationMessages.CONTENT_BLANK_MESSAGE;
+import static ru.yandex.practicum.filmorate.constant.message.ReviewValidationMessages.CONTENT_MAX_LENGTH_MESSAGE;
 import static ru.yandex.practicum.filmorate.films.FilmData.film;
-import static ru.yandex.practicum.filmorate.review.ReviewData.*;
+import static ru.yandex.practicum.filmorate.review.ReviewData.TOO_LONG_CONTENT;
+import static ru.yandex.practicum.filmorate.review.ReviewData.review;
 import static ru.yandex.practicum.filmorate.users.UserData.user;
 
 @DisplayName("Проверка добавления отзывов")

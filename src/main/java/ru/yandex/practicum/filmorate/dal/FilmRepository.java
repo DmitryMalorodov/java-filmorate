@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.film.Film;
@@ -55,9 +57,17 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
             "ORDER BY likes_count DESC, f.id ASC " +
             "LIMIT ?";
+    public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
+            " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
+            " WHERE f.id IN (:filmIds)" +
+            " GROUP BY f.id" +
+            " ORDER BY COUNT(fl.user_id);";
 
-    public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
+    public NamedParameterJdbcTemplate npJdbc;
+
+    public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(jdbc, mapper);
+        npJdbc = namedParameterJdbcTemplate;
     }
 
     public Optional<Film> findById(Long filmId) {
@@ -237,6 +247,7 @@ public class FilmRepository extends BaseRepository<Film> {
         delete(DELETE_FILM_QUERY, filmId);
     }
 
+
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         ResultSetExtractor<List<Film>> extractor = rs -> {
             Map<Long, Film> filmMap = new LinkedHashMap<>();
@@ -255,4 +266,31 @@ public class FilmRepository extends BaseRepository<Film> {
         };
         return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
     }
+
+    public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);
+
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new HashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                setGenre(rs, film);
+            }
+
+            return new ArrayList<>(filmMap.values());
+        };
+
+        return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, extractor);
+    }
+
 }

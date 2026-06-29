@@ -41,7 +41,7 @@ public class ReviewService {
     }
 
     //POST /reviews
-    public  ReviewDto createReview(Review review) {
+    public ReviewDto createReview(Review review) {
         userService.getUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
         return ReviewMapper.mapToReviewDto(reviewRepository.save(review));

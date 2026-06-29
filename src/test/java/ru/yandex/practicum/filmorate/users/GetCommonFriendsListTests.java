@@ -34,13 +34,13 @@ public class GetCommonFriendsListTests extends UserTest {
         Long friendId2 = getIdFromObject(createUser(user3));
 
         //добавление в друзья и подтверждение
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,userId, friendId2))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, userId, friendId2))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId2, userId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId2, userId))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId, friendId2))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId, friendId2))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId2, friendId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId2, friendId))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(USERS_ID_FRIENDS_COMMON_OTHER_ID, userId, friendId))
@@ -60,13 +60,13 @@ public class GetCommonFriendsListTests extends UserTest {
         Long friendId2 = getIdFromObject(createUser(user3));
 
         //добавление в друзья и подтверждение
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,userId, friendId2))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, userId, friendId2))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId2, userId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId2, userId))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId, friendId2))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId, friendId2))
                 .andExpect(status().isOk());
-        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID,friendId2, friendId))
+        mockMvc.perform(put(USERS_ID_FRIENDS_FRIEND_ID, friendId2, friendId))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get(USERS_ID_FRIENDS_COMMON_OTHER_ID, userId, friendId2))

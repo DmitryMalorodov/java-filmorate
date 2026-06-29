@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.mappers;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.review.Review;
 
-import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

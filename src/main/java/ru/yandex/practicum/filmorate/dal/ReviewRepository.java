@@ -91,7 +91,7 @@ public class ReviewRepository extends BaseRepository<Review> {
     }
 
     public int getDislikesCount(Long reviewId) {
-        return count(GET_DISLIKES,reviewId);
+        return count(GET_DISLIKES, reviewId);
     }
 
     public void updateCounters(Long reviewId, int likes, int dislikes) {
