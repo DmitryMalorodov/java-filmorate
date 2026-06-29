@@ -73,3 +73,16 @@ CREATE TABLE IF NOT EXISTS review_reactions (
     FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
     CONSTRAINT unique_review_user UNIQUE (review_id, user_id)
     );
+
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+    );
+
+CREATE TABLE IF NOT EXISTS film_directors (
+    film_id BIGINT NOT NULL,
+    director_id BIGINT NOT NULL,
+    PRIMARY KEY (film_id, director_id),
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors(id) ON DELETE CASCADE
+);

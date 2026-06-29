@@ -7,12 +7,15 @@ import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.director.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
+import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class FilmService {
     private final FilmRepository filmRepository;
     private final GenreService genreService;
     private final MpaService mpaService;
+    private final DirectorService directorService;
 
     public FilmDto getFilmById(Long filmId) {
         return filmRepository.findById(filmId)
@@ -43,6 +47,11 @@ public class FilmService {
                         .anyMatch(genreDB -> genreDB.getId().equals(genreId)));
         if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
 
+        boolean isDirectorsExist = film.getDirectors().stream()
+                .map(Director::getId)
+                .allMatch(directorId -> directorService.findAll().stream()
+                        .anyMatch(directorDB -> directorDB.getId().equals(directorId)));
+        if (!isDirectorsExist) throw new NotFoundException("Переданные режиссёры не найдены");
         //проверка, что переданный id mpa существует в БД
         mpaService.getMpaById(film.getMpa().getId());
 
@@ -61,6 +70,7 @@ public class FilmService {
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
         if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
+        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) oldFilm.setDirectors(newFilm.getDirectors());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
@@ -101,4 +111,9 @@ public class FilmService {
                 .toList();
     }
 
+    public List<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+        List<Film> films = sortBy.equalsIgnoreCase("year") ? filmRepository.getFilmsByDirectorSortedByYear(directorId) : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
+
+        return films.stream().map(FilmMapper::mapToFilmDto).toList();
+    }
 }
