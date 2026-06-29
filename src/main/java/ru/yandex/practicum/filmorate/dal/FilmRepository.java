@@ -58,7 +58,10 @@ public class FilmRepository extends BaseRepository<Film> {
             "ORDER BY likes_count DESC, f.id ASC " +
             "LIMIT ?";
     public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
-            " WHERE f.id IN (:filmIds)";
+            " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
+            " WHERE f.id IN (:filmIds)" +
+            " GROUP BY f.id" +
+            " ORDER BY COUNT(fl.user_id);";
 
     public NamedParameterJdbcTemplate npJdbc;
 
@@ -284,13 +287,7 @@ public class FilmRepository extends BaseRepository<Film> {
                 setGenre(rs, film);
             }
 
-            List<Film> orderedFilms = new ArrayList<>();
-            for (Long id : ids) {
-                if (filmMap.containsKey(id)) {
-                    orderedFilms.add(filmMap.get(id));
-                }
-            }
-            return orderedFilms;
+            return new ArrayList<>(filmMap.values());
         };
 
         return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, extractor);
