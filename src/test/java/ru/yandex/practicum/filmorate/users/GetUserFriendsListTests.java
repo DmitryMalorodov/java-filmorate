@@ -31,7 +31,7 @@ public class GetUserFriendsListTests extends UserTest {
     @Test
     void checkGetEmptyFriendsList() throws Exception {
         Long userId = getIdFromObject(createUser(user));
-        mockMvc.perform(get(USERS_ID_FRIENDS,userId))
+        mockMvc.perform(get(USERS_ID_FRIENDS, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }

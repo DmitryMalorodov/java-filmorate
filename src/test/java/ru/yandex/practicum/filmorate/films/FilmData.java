@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public class FilmData {
-    static final Film film = Film.builder()
+    public static final Film film = Film.builder()
             .name("Имя фильма")
             .description("Описание")
             .releaseDate(LocalDate.of(2000, 12, 25))
@@ -20,7 +20,7 @@ public class FilmData {
     static final Film film2 = Film.builder()
             .name("Имя фильма2")
             .description("Описание2")
-            .releaseDate(LocalDate.of(2000, 12, 20))
+            .releaseDate(LocalDate.of(2010, 12, 20))
             .duration(100)
             .mpa(new Mpa(4, "R"))
             .genres(Set.of(new Genre(6, "Боевик"), new Genre(2, "Драма")))

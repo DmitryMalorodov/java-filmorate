@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -54,8 +55,10 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<FilmDto> getPopularFilms(
-            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
-        return filmService.getMostPopularFilmsByLikes(count);
+            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count,
+            @RequestParam(required = false) final Integer genreId,
+            @RequestParam(required = false) final Integer year) {
+        return filmService.getMostPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/search")
@@ -68,5 +71,21 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable final Long id) {
         filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/common")
+    public Collection<FilmDto> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<FilmDto> getFilmsByDirector(@PathVariable Long directorId, @RequestParam(defaultValue = "likes") String sortBy) {
+
+        if (!sortBy.equalsIgnoreCase("likes") && !sortBy.equalsIgnoreCase("year")) {
+            throw new ValidationException("Параметр sortBy может быть только 'likes' или 'year'");
+        }
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 }

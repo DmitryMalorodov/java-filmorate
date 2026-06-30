@@ -1,8 +1,10 @@
 DELETE FROM film_genres;
+DELETE FROM film_directors;
 DELETE FROM films;
 DELETE FROM mpa;
 DELETE FROM genres;
 DELETE FROM users;
+DELETE FROM directors;
 
 ALTER TABLE mpa ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE users ALTER COLUMN id RESTART WITH 1;
@@ -21,3 +23,8 @@ INSERT INTO genres (name) VALUES ('Мультфильм');
 INSERT INTO genres (name) VALUES ('Триллер');
 INSERT INTO genres (name) VALUES ('Документальный');
 INSERT INTO genres (name) VALUES ('Боевик');
+
+INSERT INTO directors (name) VALUES ('Режиссёр1');
+INSERT INTO directors (name) VALUES ('Кристофер Нолан');
+INSERT INTO directors (name) VALUES ('Квентин Тарантино');
+INSERT INTO directors (name) VALUES ('Мартин Скорсезе');

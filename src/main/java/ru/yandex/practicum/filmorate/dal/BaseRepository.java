@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -35,18 +36,18 @@ public class BaseRepository<T> {
     }
 
     protected List<String> findMany(String query, String fieldName, Object... params) {
-        return jdbc.query(
-                query,
-                (rs, rowNum) -> rs.getString(fieldName),
-                params
-        );
+        return jdbc.query(query, (rs, rowNum) -> rs.getString(fieldName), params);
     }
+
+    protected List<T> findMany(String query, ResultSetExtractor<List<T>> extractor, Object... params) {
+        return jdbc.query(query, extractor, params);
+    }
+
 
     protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
@@ -73,5 +74,19 @@ public class BaseRepository<T> {
     protected boolean delete(String query, Object... params) {
         int rowsDeleted = jdbc.update(query, params);
         return rowsDeleted > 0;
+    }
+
+    protected int count(String query, Object... params) {
+        Integer count = jdbc.queryForObject(query, Integer.class, params);
+        return count != null ? count : 0;
+    }
+
+    protected Optional<String> findOneString(String query, Object... params) {
+        try {
+            String result = jdbc.queryForObject(query, String.class, params);
+            return Optional.ofNullable(result);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 }

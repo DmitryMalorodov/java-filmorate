@@ -3,14 +3,19 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.FriendshipRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.user.User;
 
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +23,7 @@ import java.util.Collection;
 public class UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final FilmRepository filmRepository;
 
     public UserDto getUserById(Long userId) {
         return userRepository.findById(userId)
@@ -98,5 +104,28 @@ public class UserService {
         } else {
             oldUser.setName(newUser.getName());
         }
+    }
+
+
+    public List<FilmDto> getRecommendations(Long idUser) {
+        log.info("Начал поиск рекомедаций");
+        Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);
+        Map<Long, Set<Long>> mindedUsers = userRepository.getMindedUsers(idUser);
+        List<Long> recommendedFilms;
+        log.info("Получен список лайкнутых фильмов пользователем {}", userLikeList);
+        log.info("Получен список пользователей единомышлиников {}", mindedUsers);
+        recommendedFilms = mindedUsers.values().stream()
+                .flatMap(Set::stream)
+                .filter(filmId -> !userLikeList.contains(filmId))
+                .collect(Collectors.groupingBy(filmId -> filmId, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .toList();
+        log.info("Нашел рекомендации {}", recommendedFilms);
+        return filmRepository.getRecommendationsFilmsById(recommendedFilms)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
     }
 }
