@@ -257,9 +257,11 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
-        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            update(DELETE_DIRECTORS, film.getId());
-            setDirectorsToDB(film);
+        if (film.getDirectors() != null) {
+            jdbc.update(DELETE_DIRECTORS, film.getId());
+            if (!film.getDirectors().isEmpty()) {
+                setDirectorsToDB(film);
+            }
         }
 
         return film;
