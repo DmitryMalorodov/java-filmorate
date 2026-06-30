@@ -69,18 +69,33 @@ public class FilmRepository extends BaseRepository<Film> {
             " ORDER BY COUNT(fl.user_id);";
 
     private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES =
-            "SELECT f.*, COUNT(fl.user_id) AS likes_count FROM films f " +
-                    "LEFT JOIN film_likes AS fl ON f.id = fl.film_id " +
-                    "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name " +          // ← добавили
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +   // ← добавили
                     "WHERE fd.director_id = ? " +
-                    "GROUP BY f.id " +
+                    "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name, fg.genre_id, g.name, fd.director_id, d.name " +
                     "ORDER BY likes_count DESC, f.id ASC";
 
     private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR =
-            "SELECT f.* FROM films f " +
-                    "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +
                     "WHERE fd.director_id = ? " +
-                    "GROUP BY f.id " +
+                    "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name, fg.genre_id, g.name, fd.director_id, d.name " +
                     "ORDER BY f.release_date ASC, f.id ASC";
 
     private static final String INSERT_DIRECTORS = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
