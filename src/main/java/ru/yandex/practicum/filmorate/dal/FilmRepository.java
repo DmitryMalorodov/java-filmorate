@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.model.director.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.model.film.Mpa;
@@ -18,17 +19,21 @@ import java.util.*;
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
-            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " +
-            "FROM films f " +
-            "LEFT JOIN mpa m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-            "LEFT JOIN genres g ON fg.genre_id = g.id";
-    private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
-            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name " +
+            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
             "FROM films f " +
             "LEFT JOIN mpa m ON f.mpa_id = m.id " +
             "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
             "LEFT JOIN genres g ON fg.genre_id = g.id " +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+            "LEFT JOIN directors d ON fd.director_id = d.id";
+    private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
+            "FROM films f " +
+            "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+            "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+            "LEFT JOIN genres g ON fg.genre_id = g.id " +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+            "LEFT JOIN directors d ON fd.director_id = d.id " +
             "WHERE f.id = ?";
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_id)" +
             "VALUES (?, ?, ?, ?, ?)";
@@ -63,6 +68,40 @@ public class FilmRepository extends BaseRepository<Film> {
             " GROUP BY f.id" +
             " ORDER BY COUNT(fl.user_id);";
 
+    private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES =
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name, COUNT(fl.user_id) AS likes_count " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +
+                    "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
+                    "WHERE fd.director_id = ? " +
+                    "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name, fg.genre_id, g.name, fd.director_id, d.name " +
+                    "ORDER BY likes_count DESC, f.id ASC";
+
+    private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR =
+            "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, " +
+                    "fd.director_id, d.name AS director_name " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +
+                    "WHERE fd.director_id = ? " +
+                    "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, " +
+                    "f.mpa_id, m.name, fg.genre_id, g.name, fd.director_id, d.name " +
+                    "ORDER BY f.release_date ASC, f.id ASC";
+
+    private static final String INSERT_DIRECTORS = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+    private static final String DELETE_DIRECTORS = "DELETE FROM film_directors WHERE film_id = ?";
+
     public NamedParameterJdbcTemplate npJdbc;
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -81,6 +120,7 @@ public class FilmRepository extends BaseRepository<Film> {
                 }
                 //если genreId не null то добавляем его в сет
                 setGenre(rs, film);
+                setDirector(rs, film);
             }
 
             return Optional.ofNullable(film);
@@ -103,6 +143,7 @@ public class FilmRepository extends BaseRepository<Film> {
                 }
                 //если genreId не null то добавляем его в сет
                 setGenre(rs, film);
+                setDirector(rs, film);
             }
 
             return new ArrayList<>(filmMap.values());
@@ -121,6 +162,16 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
+    private void setDirector(ResultSet rs, Film film) throws SQLException {
+        long directorId = rs.getLong("director_id");
+        if (!rs.wasNull()) {
+            Director director = new Director();
+            director.setId(directorId);
+            director.setName(rs.getString("director_name"));
+            film.getDirectors().add(director);
+        }
+    }
+
     private void setFilmFields(Film film, Long filmId, ResultSet rs) throws SQLException {
         film.setId(filmId);
         film.setName(rs.getString("name"));
@@ -128,6 +179,7 @@ public class FilmRepository extends BaseRepository<Film> {
         film.setReleaseDate(rs.getDate("release_date") != null ? rs.getDate("release_date").toLocalDate() : null);
         film.setDuration(rs.getInt("duration"));
         film.setGenres(new LinkedHashSet<>());
+        film.setDirectors(new LinkedHashSet<>());
 
         int mpaId = rs.getInt("mpa_id");
         if (!rs.wasNull()) {
@@ -194,6 +246,10 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            setDirectorsToDB(film);
+        }
+
         return film;
     }
 
@@ -217,6 +273,13 @@ public class FilmRepository extends BaseRepository<Film> {
             setGenresToDB(film);
         }
 
+        if (film.getDirectors() != null) {
+            jdbc.update(DELETE_DIRECTORS, film.getId());
+            if (!film.getDirectors().isEmpty()) {
+                setDirectorsToDB(film);
+            }
+        }
+
         return film;
     }
 
@@ -225,6 +288,14 @@ public class FilmRepository extends BaseRepository<Film> {
                 (ps, genre) -> {
                     ps.setLong(1, film.getId());
                     ps.setInt(2, genre.getId());
+                });
+    }
+
+    private void setDirectorsToDB(Film film) {
+        jdbc.batchUpdate(INSERT_DIRECTORS, film.getDirectors(), film.getDirectors().size(),
+                (ps, director) -> {
+                    ps.setLong(1, film.getId());
+                    ps.setLong(2, director.getId());
                 });
     }
 
@@ -291,6 +362,44 @@ public class FilmRepository extends BaseRepository<Film> {
         };
 
         return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, extractor);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                setGenre(rs, film);
+                setDirector(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, extractor, directorId);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                setGenre(rs, film);
+                setDirector(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, extractor, directorId);
     }
 
 }
