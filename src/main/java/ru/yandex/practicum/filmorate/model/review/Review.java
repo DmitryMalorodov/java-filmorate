@@ -7,22 +7,24 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import static ru.yandex.practicum.filmorate.constant.message.ReviewValidationMessages.*;
+
 @Data
 @Builder(toBuilder = true)
 public class Review {
     private Long reviewId;
 
-    @NotBlank(message = "Содержание отзыва не может быть пустым")
-    @Size(max = 255, message = "Содержание отзыва не может быть длиннее 255 символов")
+    @NotBlank(message = CONTENT_BLANK_MESSAGE)
+    @Size(max = 255, message = CONTENT_MAX_LENGTH_MESSAGE)
     private String content;
 
-    @NotNull(message = "Тип отзыва должен быть указан")
+    @NotNull(message = REVIEW_TYPE_NULL_MESSAGE)
     private Boolean isPositive;
 
-    @NotNull(message = "ID пользователя должен быть указан")
+    @NotNull(message = USER_ID_INVALID_MESSAGE)
     private Long userId;
 
-    @NotNull(message = "ID фильма должен быть указан")
+    @NotNull(message = FILM_ID_INVALID_MESSAGE)
     private Long filmId;
 
     private Integer useful;

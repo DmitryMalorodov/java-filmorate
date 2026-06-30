@@ -102,10 +102,7 @@ public class ReviewService {
 
         if (existingReactionOpt.isPresent()) {
             String existing = existingReactionOpt.get();
-
-            if (existing.equals(ReactionType.DISLIKE.name())) {
-                return;
-            } else if (existing.equals(ReactionType.LIKE.name())) {
+            if (existing.equals(ReactionType.LIKE.name())) {
                 reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
                 reviewRepository.updateCounters(reviewId, -1, +1);
             }

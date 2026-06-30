@@ -115,7 +115,6 @@ public class UserService {
         }
     }
 
-
     public List<FilmDto> getRecommendations(Long idUser) {
         log.info("Начал поиск рекомедаций");
         Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);

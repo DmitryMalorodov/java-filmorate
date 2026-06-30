@@ -44,18 +44,10 @@ public class FilmService {
     }
 
     public FilmDto createFilm(Film film) {
-        //проверка, что переданные id жанров существуют в БД
-        boolean isGenresExist = film.getGenres().stream()
-                .map(Genre::getId)
-                .allMatch(genreId -> genreService.getGenres().stream()
-                        .anyMatch(genreDB -> genreDB.getId().equals(genreId)));
-        if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
+        //проверка, что переданные id жанров и режиссеров существуют в БД
+        checkGenresExist(film);
+        checkDirectorsExist(film);
 
-        boolean isDirectorsExist = film.getDirectors().stream()
-                .map(Director::getId)
-                .allMatch(directorId -> directorService.findAll().stream()
-                        .anyMatch(directorDB -> directorDB.getId().equals(directorId)));
-        if (!isDirectorsExist) throw new NotFoundException("Переданные режиссёры не найдены");
         //проверка, что переданный id mpa существует в БД
         mpaService.getMpaById(film.getMpa().getId());
 
@@ -76,6 +68,8 @@ public class FilmService {
         if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
         if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty())
             oldFilm.setDirectors(newFilm.getDirectors());
+        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) oldFilm.setDirectors(newFilm.getDirectors());
+
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
@@ -132,5 +126,21 @@ public class FilmService {
         List<Film> films = sortBy.equalsIgnoreCase("year") ? filmRepository.getFilmsByDirectorSortedByYear(directorId) : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
 
         return films.stream().map(FilmMapper::mapToFilmDto).toList();
+    }
+
+    private void checkGenresExist(Film film) {
+        boolean isGenresExist = film.getGenres().stream()
+                .map(Genre::getId)
+                .allMatch(genreId -> genreService.getGenres().stream()
+                        .anyMatch(genreDB -> genreDB.getId().equals(genreId)));
+        if (!isGenresExist) throw new NotFoundException("Переданные жанры не найдены");
+    }
+
+    private void checkDirectorsExist(Film film) {
+        boolean isDirectorsExist = film.getDirectors().stream()
+                .map(Director::getId)
+                .allMatch(directorId -> directorService.findAll().stream()
+                        .anyMatch(directorDB -> directorDB.getId().equals(directorId)));
+        if (!isDirectorsExist) throw new NotFoundException("Переданные режиссёры не найдены");
     }
 }
