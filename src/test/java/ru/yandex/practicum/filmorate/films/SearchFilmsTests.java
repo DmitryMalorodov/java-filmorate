@@ -58,7 +58,7 @@ public class SearchFilmsTests extends FilmTest {
         createFilm(film);
         createFilm(film2);
 
-        mockMvc.perform(get(FILMS_SEARCH).param("query", "нол").param("by", "directors", "title"))
+        mockMvc.perform(get(FILMS_SEARCH).param("query", "нол").param("by", "director", "title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(2));

@@ -120,7 +120,7 @@ public class FilmService {
         List<String> params = new ArrayList<>();
         params.add(userQuery);
 
-        if (searchType.contains("directors")) {
+        if (searchType.contains("director")) {
             whereQuery.append("OR LOWER(d.name) LIKE ? ");
             params.add(userQuery);
         }
