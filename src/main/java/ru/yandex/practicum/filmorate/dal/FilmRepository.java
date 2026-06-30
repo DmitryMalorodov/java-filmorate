@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
@@ -315,7 +317,22 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> getFilmsByRequestParam(String queryDB, Object[] params) {
-        return findMany(queryDB, params);
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                setGenre(rs, film);
+                setDirector(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(queryDB, extractor, params);
     }
 
     public void deleteFilm(Long filmId) {

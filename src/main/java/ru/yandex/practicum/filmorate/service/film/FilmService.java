@@ -71,7 +71,8 @@ public class FilmService {
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
         if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
-        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) oldFilm.setDirectors(newFilm.getDirectors());
+        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty())
+            oldFilm.setDirectors(newFilm.getDirectors());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
@@ -100,21 +101,26 @@ public class FilmService {
     }
 
     public Collection<FilmDto> getFilmByRequestParam(String query, List<String> searchType) {
-        if (query.isEmpty()) getFilms();
+        log.info("Поиск фильма по фразе '{}' ", query);
+        if (query.isBlank()) return getFilms();
 
         String userQuery = "%" + query.toLowerCase() + "%";
 
-        StringBuilder sql = new StringBuilder("SELECT f.* FROM films f ");
+        StringBuilder sql = new StringBuilder("SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
+                "FROM films f " +
+                "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                "LEFT JOIN directors d ON fd.director_id = d.id ");
 
         StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
 
-        List<Object> params = new ArrayList<>();
+        List<String> params = new ArrayList<>();
         params.add(userQuery);
 
         if (searchType.contains("directors")) {
-            sql.append("INNER JOIN film_directors fd ON fd.film_id = f.id ");
-            sql.append("INNER JOIN directors d ON d.id = fd.director_id ");
-
             whereQuery.append("OR LOWER(d.name) LIKE ? ");
             params.add(userQuery);
         }
