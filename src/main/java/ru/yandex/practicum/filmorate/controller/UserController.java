@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.Collection;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
-    private final EventService eventService;
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable final Long id) {
@@ -74,6 +72,6 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public Collection<EventDto> getEventsByUserId(@PathVariable final Long id) {
-        return eventService.getEventsByUserId(id);
+        return userService.getEventsByUserId(id);
     }
 }
