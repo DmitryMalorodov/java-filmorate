@@ -137,7 +137,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private ResultSetExtractor<List<Film>> getExtractor() {
         return rs -> {
-            Map<Long, Film> filmMap = new HashMap<>();
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
 
             while (rs.next()) {
                 long filmId = rs.getLong("film_id");
