@@ -69,7 +69,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId) {
         ReviewDto review = getReviewById(reviewId);
-        eventService.addEvent(review.getUserId(), reviewId, EventType.REVIEW, OperationType.REMOVE);
+        eventService.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.REMOVE);
         reviewRepository.delete(reviewId);
     }
 
