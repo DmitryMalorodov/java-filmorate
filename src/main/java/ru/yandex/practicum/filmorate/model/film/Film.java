@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model.film;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -42,8 +43,10 @@ public class Film {
     private Mpa mpa;
 
     @Builder.Default
+    @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Genre> genres = new LinkedHashSet<>();
 
     @Builder.Default
+    @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Director> directors = new LinkedHashSet<>();
 }
