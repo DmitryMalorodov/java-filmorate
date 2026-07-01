@@ -3,44 +3,18 @@ package ru.yandex.practicum.filmorate.review;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.SoftAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.MainTest;
 import ru.yandex.practicum.filmorate.dal.ReviewRepository;
 import ru.yandex.practicum.filmorate.model.review.Review;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ReviewTest extends MainTest {
     protected final ReviewRepository reviewRepository;
 
     protected static final String REVIEWS = "/reviews";
-    protected static final String REVIEWS_ID = "/reviews/{id}";
+    public static final String REVIEWS_ID = "/reviews/{id}";
     protected static final String REVIEWS_ID_LIKE = "/reviews/{id}/like/{userId}";
     protected static final String REVIEWS_ID_DISLIKE = "/reviews/{id}/dislike/{userId}";
-
-    protected Review createReview(Review review) throws Exception {
-        String content = createReviewRequest(review)
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return objectMapper.readValue(content, Review.class);
-    }
-
-    public ResultActions createReviewRequest(Review review) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post(REVIEWS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(review)));
-    }
-
-    public ResultActions changeReview(Review review) throws Exception {
-        return mockMvc.perform(put(REVIEWS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(review)));
-    }
 
     protected void checkReview(Review actual, Review expected, SoftAssertions softAssert) {
         softAssert.assertThat(actual.getReviewId())

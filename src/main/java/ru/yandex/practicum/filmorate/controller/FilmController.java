@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
@@ -58,6 +59,13 @@ public class FilmController {
             @RequestParam(required = false) final Integer genreId,
             @RequestParam(required = false) final Integer year) {
         return filmService.getMostPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/search")
+    public Collection<FilmDto> findFilms(@RequestParam final String query,
+                                         @RequestParam(defaultValue = "title", name = "by") final List<String> params
+    ) {
+        return filmService.getFilmByRequestParam(query, params);
     }
 
     @DeleteMapping("/{id}")

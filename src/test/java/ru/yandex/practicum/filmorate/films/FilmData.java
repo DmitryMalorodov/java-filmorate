@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.films;
 
+import ru.yandex.practicum.filmorate.model.director.Director;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.model.film.Mpa;
@@ -17,6 +18,8 @@ public class FilmData {
             .genres(Set.of(new Genre(1, "Комедия")))
             .build();
 
+    static final Director director = Director.builder().name("Кристофер Нолан").build();
+
     static final Film film2 = Film.builder()
             .name("Имя фильма2")
             .description("Описание2")
@@ -24,6 +27,7 @@ public class FilmData {
             .duration(100)
             .mpa(new Mpa(4, "R"))
             .genres(Set.of(new Genre(6, "Боевик"), new Genre(2, "Драма")))
+            .directors(Set.of(new Director(1L, director.getName())))
             .build();
 
     static final String STR_200_LENGTH = "Описание200символов!Описание200символов!" +
