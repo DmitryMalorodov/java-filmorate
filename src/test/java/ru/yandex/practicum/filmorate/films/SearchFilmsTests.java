@@ -23,7 +23,7 @@ public class SearchFilmsTests extends FilmTest {
         createFilm(film);
         createFilm(film2);
 
-        mockMvc.perform(get(FILMS_SEARCH).param("query", "2"))
+        mockMvc.perform(get(FILMS_SEARCH).param("query", "2").param("by","title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(2));
@@ -33,7 +33,7 @@ public class SearchFilmsTests extends FilmTest {
     public void searchNotExistingFilmByTitle() throws Exception {
         createFilm(film);
 
-        mockMvc.perform(get(FILMS_SEARCH).param("query", "триц"))
+        mockMvc.perform(get(FILMS_SEARCH).param("query", "триц").param("by","title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
 
@@ -45,7 +45,7 @@ public class SearchFilmsTests extends FilmTest {
         createFilm(film);
         createFilm(film);
         //вернет полный список фильмов при поиске с пустым запросом
-        mockMvc.perform(get(FILMS_SEARCH).param("query", ""))
+        mockMvc.perform(get(FILMS_SEARCH).param("query", "").param("by","title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3))
                 .andExpect(jsonPath("$[0].name").value("Имя фильма"))
