@@ -56,13 +56,13 @@ public class FilmRepository extends BaseRepository<Film> {
             " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
 
 
-    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.id " +
             "FROM films f " +
             "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
     private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
     private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
-            "ORDER BY likes_count DESC, f.id ASC " +
+            "ORDER BY COUNT(fl.user_id) DESC, f.id ASC " +
             "LIMIT ?";
     public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
             " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
@@ -132,8 +132,12 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> findAll() {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new HashMap<>();
+        return findMany(FIND_ALL_QUERY, getExtractor());
+    }
+
+    private ResultSetExtractor<List<Film>> getExtractor() {
+        return rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
 
             while (rs.next()) {
                 long filmId = rs.getLong("film_id");
@@ -150,8 +154,6 @@ public class FilmRepository extends BaseRepository<Film> {
 
             return new ArrayList<>(filmMap.values());
         };
-
-        return findMany(FIND_ALL_QUERY, extractor);
     }
 
     private void setGenre(ResultSet rs, Film film) throws SQLException {
@@ -192,11 +194,21 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
-    public List<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
+    public Set<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
         List<Integer> params = new ArrayList<>();
         String sqlQuery = getPopularFilmsSqlQuery(genreId, year, params);
         params.add(limit);
-        return findMany(sqlQuery, params.toArray());
+
+        //получение списка id популярных фильмов
+        List<Integer> popularFilmIds = jdbc.queryForList(sqlQuery, Integer.class, params.toArray());
+        if (popularFilmIds.isEmpty()) return Collections.emptySet();
+
+        //получение всей информации для популярных фильмов
+        String inSql = String.join(",", Collections.nCopies(popularFilmIds.size(), "?"));
+        String finalQuery = FIND_ALL_QUERY + " WHERE f.id IN (" + inSql + ") " +
+                "ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC, f.id ASC";
+
+        return new LinkedHashSet<>(findMany(finalQuery, getExtractor(), popularFilmIds.toArray()));
     }
 
     private String getPopularFilmsSqlQuery(Integer genreId, Integer year, List<Integer> params) {
