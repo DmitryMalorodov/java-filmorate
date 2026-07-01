@@ -259,11 +259,12 @@ public class FilmRepository extends BaseRepository<Film> {
         );
 
         //если список жанров не пустой - сохраняем в бд
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+        if (film.getGenres() != null) {
             //удаление всех жанров фильма
             update(DELETE_GENRES_QUERY, film.getId());
-            //сохранение жанров в бд
-            setGenresToDB(film);
+            if (!film.getGenres().isEmpty()) {
+                setGenresToDB(film);
+            }
         }
 
         if (film.getDirectors() != null) {
