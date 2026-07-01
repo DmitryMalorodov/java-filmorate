@@ -26,8 +26,3 @@ INSERT INTO genres (name) VALUES ('Мультфильм');
 INSERT INTO genres (name) VALUES ('Триллер');
 INSERT INTO genres (name) VALUES ('Документальный');
 INSERT INTO genres (name) VALUES ('Боевик');
-
-INSERT INTO directors (name) VALUES ('Режиссёр1');
-INSERT INTO directors (name) VALUES ('Кристофер Нолан');
-INSERT INTO directors (name) VALUES ('Квентин Тарантино');
-INSERT INTO directors (name) VALUES ('Мартин Скорсезе');
