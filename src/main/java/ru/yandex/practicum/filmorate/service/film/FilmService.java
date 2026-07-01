@@ -102,6 +102,7 @@ public class FilmService {
     public Collection<FilmDto> getFilmByRequestParam(String query, List<String> searchType) {
         log.info("Поиск фильма по фразе '{}' ", query);
         if (query.isBlank()) return getFilms();
+        if (searchType.isEmpty()) throw new NotFoundException("Нечего не найдено, укажите парметры поиска");
 
         return filmRepository.getFilmsByRequestParam(query, searchType)
                 .stream()

@@ -67,7 +67,7 @@ public class FilmRepository extends BaseRepository<Film> {
     public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
             " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
             " WHERE f.id IN (:filmIds)" +
-            " GROUP BY f.id" +
+            " GROUP BY f.id, fg.genre_id, fd.director_id" +
             " ORDER BY COUNT(fl.user_id);";
 
     private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES =
@@ -321,14 +321,24 @@ public class FilmRepository extends BaseRepository<Film> {
 
         StringBuilder sql = new StringBuilder(FIND_ALL_QUERY);
 
-        StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
+        StringBuilder whereQuery = new StringBuilder("WHERE ");
 
         List<String> params = new ArrayList<>();
         params.add(userQuery);
 
+        boolean hasTitle = false;
+        if (searchType.contains("title")) {
+            whereQuery.append("LOWER(f.name) LIKE ? ");
+            hasTitle = true;
+        }
+
         if (searchType.contains("director")) {
-            whereQuery.append("OR LOWER(d.name) LIKE ? ");
-            params.add(userQuery);
+            if (hasTitle) {
+                whereQuery.append("OR LOWER(d.name) LIKE ? ");
+                params.add(userQuery);
+            } else {
+                whereQuery.append("LOWER(d.name) LIKE ? ");
+            }
         }
 
         sql.append(whereQuery);
