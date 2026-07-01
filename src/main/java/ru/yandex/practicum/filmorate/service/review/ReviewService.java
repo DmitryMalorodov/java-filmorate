@@ -73,19 +73,19 @@ public class ReviewService {
         reviewRepository.delete(reviewId);
     }
 
-    //PUT /reviews/{id}/like/{userId}
+    // PUT /reviews/{id}/like/{userId}
     public void addLike(Long reviewId, Long userId) {
         getReviewById(reviewId);
         userService.getUserById(userId);
+
         reviewReactionRepository.getReactionType(reviewId, userId)
                 .ifPresentOrElse(
                         reaction -> {
-                            if (reaction.equals(ReactionType.LIKE)) {
-                                reviewReactionRepository.removeReaction(reviewId, userId);
-                                reviewRepository.updateCounters(reviewId, -1, 0);
-                            } else if (reaction.equals(ReactionType.DISLIKE)) {
+                            if (reaction.equals(ReactionType.LIKE.name())) {
+                                return;
+                            } else if (reaction.equals(ReactionType.DISLIKE.name())) {
                                 reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.LIKE);
-                                reviewRepository.updateCounters(reviewId, +1, -1);
+                                reviewRepository.updateCounters(reviewId, +1, -1);  // +1 like, -1 dislike
                             }
                         },
                         () -> {
@@ -95,23 +95,26 @@ public class ReviewService {
                 );
     }
 
-    //PUT /reviews/{id}/dislike/{userId}
+    // PUT /reviews/{id}/dislike/{userId}
     public void addDislike(Long reviewId, Long userId) {
         getReviewById(reviewId);
         userService.getUserById(userId);
 
-        Optional<String> existingReactionOpt = reviewReactionRepository.getReactionType(reviewId, userId);
-
-        if (existingReactionOpt.isPresent()) {
-            String existing = existingReactionOpt.get();
-            if (existing.equals(ReactionType.LIKE.name())) {
-                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
-                reviewRepository.updateCounters(reviewId, -1, +1);
-            }
-        } else {
-            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
-            reviewRepository.updateCounters(reviewId, 0, +1);
-        }
+        reviewReactionRepository.getReactionType(reviewId, userId)
+                .ifPresentOrElse(
+                        reaction -> {
+                            if (reaction.equals(ReactionType.DISLIKE.name())) {
+                                return;
+                            } else if (reaction.equals(ReactionType.LIKE.name())) {
+                                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
+                                reviewRepository.updateCounters(reviewId, -1, +1);
+                            }
+                        },
+                        () -> {
+                            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
+                            reviewRepository.updateCounters(reviewId, 0, +1);
+                        }
+                );
     }
 
     //DELETE /reviews/{id}/like/{userId}
