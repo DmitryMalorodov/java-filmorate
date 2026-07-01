@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
-
 import java.util.Collection;
 import java.util.List;
 
@@ -103,7 +102,6 @@ public class FilmService {
     public Collection<FilmDto> getFilmByRequestParam(String query, List<String> searchType) {
         log.info("Поиск фильма по фразе '{}' ", query);
         if (query.isBlank()) return getFilms();
-
 
         return filmRepository.getFilmsByRequestParam(query, searchType)
                 .stream()
