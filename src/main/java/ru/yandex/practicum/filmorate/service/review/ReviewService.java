@@ -49,7 +49,7 @@ public class ReviewService {
         userService.getUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
         ReviewDto reviewDto = ReviewMapper.mapToReviewDto(reviewRepository.save(review));
-        eventService.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.ADD);
+        eventService.addEvent(reviewDto.getUserId(), reviewDto.getReviewId(), EventType.REVIEW, OperationType.ADD);
         return reviewDto;
     }
 
