@@ -69,8 +69,8 @@ public class FilmService {
         if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
-        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
-        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) oldFilm.setDirectors(newFilm.getDirectors());
+        if (newFilm.getGenres() != null) oldFilm.setGenres(newFilm.getGenres());
+        if (newFilm.getDirectors() != null) oldFilm.setDirectors(newFilm.getDirectors());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
@@ -112,6 +112,7 @@ public class FilmService {
     }
 
     public List<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+        directorService.findById(directorId);
         List<Film> films = sortBy.equalsIgnoreCase("year") ? filmRepository.getFilmsByDirectorSortedByYear(directorId) : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
 
         return films.stream().map(FilmMapper::mapToFilmDto).toList();
