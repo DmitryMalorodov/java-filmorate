@@ -50,7 +50,7 @@ public class ReviewService {
         userService.getUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
         ReviewDto reviewDto = ReviewMapper.mapToReviewDto(reviewRepository.save(review));
-        eventService.addEvent(reviewDto.getUserId(), reviewDto.getFilmId(), EventType.REVIEW, OperationType.ADD);
+        eventService.addEvent(reviewDto.getUserId(), reviewDto.getReviewId(), EventType.REVIEW, OperationType.ADD);
         return reviewDto;
     }
 
@@ -61,7 +61,7 @@ public class ReviewService {
         oldReview.setContent(newReview.getContent());
         oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);
-        eventService.addEvent(oldReview.getUserId(), oldReview.getFilmId(), EventType.REVIEW, OperationType.UPDATE);
+        eventService.addEvent(oldReview.getUserId(), oldReview.getReviewId(), EventType.REVIEW, OperationType.UPDATE);
         return ReviewMapper.mapToReviewDto(oldReview);
     }
 
@@ -69,7 +69,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId) {
         ReviewDto review = getReviewById(reviewId);
-        eventService.addEvent(review.getUserId(), review.getFilmId(), EventType.REVIEW, OperationType.REMOVE);
+        eventService.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.REMOVE);
         reviewRepository.delete(reviewId);
     }
 
