@@ -1,3 +1,6 @@
+DELETE FROM review_reactions;
+DELETE FROM reviews;
+DELETE FROM film_likes;
 DELETE FROM film_genres;
 DELETE FROM film_directors;
 DELETE FROM films;
