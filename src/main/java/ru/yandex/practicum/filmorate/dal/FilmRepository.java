@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_ALL_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
@@ -25,7 +27,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
             "LEFT JOIN genres g ON fg.genre_id = g.id " +
             "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
-            "LEFT JOIN directors d ON fd.director_id = d.id";
+            "LEFT JOIN directors d ON fd.director_id = d.id ";
     private static final String FIND_BY_ID_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
             "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
             "FROM films f " +
@@ -312,6 +314,41 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public void deleteLike(Long filmId, Long userId) {
         delete(DELETE_LIKE_QUERY, filmId, userId);
+    }
+
+    public List<Film> getFilmsByRequestParam(String query, List<String> searchType) {
+        String userQuery = "%" + query.toLowerCase() + "%";
+
+        StringBuilder sql = new StringBuilder(FIND_ALL_QUERY);
+
+        StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
+
+        List<String> params = new ArrayList<>();
+        params.add(userQuery);
+
+        if (searchType.contains("director")) {
+            whereQuery.append("OR LOWER(d.name) LIKE ? ");
+            params.add(userQuery);
+        }
+
+        sql.append(whereQuery);
+
+        ResultSetExtractor<List<Film>> extractor = rs -> {
+            Map<Long, Film> filmMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                Film film = filmMap.get(filmId);
+                if (film == null) {
+                    film = new Film();
+                    setFilmFields(film, filmId, rs);
+                    filmMap.put(filmId, film);
+                }
+                setGenre(rs, film);
+                setDirector(rs, film);
+            }
+            return new ArrayList<>(filmMap.values());
+        };
+        return findMany(sql.toString(), extractor, params.toArray());
     }
 
     public void deleteFilm(Long filmId) {

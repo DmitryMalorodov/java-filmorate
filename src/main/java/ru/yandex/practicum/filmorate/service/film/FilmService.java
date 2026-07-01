@@ -70,7 +70,8 @@ public class FilmService {
         if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
         if (newFilm.getMpa() != null) oldFilm.setMpa(newFilm.getMpa());
         if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) oldFilm.setGenres(newFilm.getGenres());
-        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) oldFilm.setDirectors(newFilm.getDirectors());
+        if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty())
+            oldFilm.setDirectors(newFilm.getDirectors());
         filmRepository.update(oldFilm);
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
@@ -93,6 +94,16 @@ public class FilmService {
     public Collection<FilmDto> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
         log.info("Получение списка самых популярных фильмов по лайкам с ограничением по кол-ву фильмов - {}", limit);
         return filmRepository.getPopularFilms(limit, genreId, year)
+                .stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
+    public Collection<FilmDto> getFilmByRequestParam(String query, List<String> searchType) {
+        log.info("Поиск фильма по фразе '{}' ", query);
+        if (query.isBlank()) return getFilms();
+
+        return filmRepository.getFilmsByRequestParam(query, searchType)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
