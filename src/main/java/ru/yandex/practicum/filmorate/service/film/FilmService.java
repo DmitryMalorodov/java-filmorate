@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +30,7 @@ public class FilmService {
     private final MpaService mpaService;
     private final DirectorService directorService;
     private final EventService eventService;
+    private final UserService userService;
 
     public FilmDto getFilmById(Long filmId) {
         return filmRepository.findById(filmId)
@@ -76,16 +78,18 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        //вызов метода получения фильма по id для проверки его существования
+        //вызов метода получения фильма и юзера по id для проверки его существования
         getFilmById(filmId);
+        userService.getUserById(userId);
         log.info("Добавление лайка пользователем с id - {} к фильму с id - {}", userId, filmId);
         filmRepository.addLike(filmId, userId);
         eventService.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
     }
 
     public void deleteLike(Long filmId, Long userId) {
-        //вызов метода получения фильма по id для проверки его существования
+        //вызов метода получения фильма и юзера по id для проверки его существования
         getFilmById(filmId);
+        userService.getUserById(userId);
         log.info("Удаление лайка пользователем с id - {} с фильма с id - {}", userId, filmId);
         filmRepository.deleteLike(filmId, userId);
         eventService.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
