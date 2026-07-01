@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dal.ReviewReactionRepository;
 import ru.yandex.practicum.filmorate.dal.ReviewRepository;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
@@ -60,15 +61,16 @@ public class ReviewService {
         oldReview.setContent(newReview.getContent());
         oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);
-        eventService.addEvent(newReview.getUserId(), newReview.getReviewId(), EventType.REVIEW, OperationType.UPDATE);
+        eventService.addEvent(oldReview.getUserId(), oldReview.getReviewId(), EventType.REVIEW, OperationType.UPDATE);
         return ReviewMapper.mapToReviewDto(oldReview);
     }
 
     //DELETE /reviews/{id}
+    @Transactional
     public void deleteReview(Long reviewId) {
         ReviewDto review = getReviewById(reviewId);
+        eventService.addEvent(review.getUserId(), reviewId, EventType.REVIEW, OperationType.REMOVE);
         reviewRepository.delete(reviewId);
-        eventService.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.REMOVE);
     }
 
     //PUT /reviews/{id}/like/{userId}
