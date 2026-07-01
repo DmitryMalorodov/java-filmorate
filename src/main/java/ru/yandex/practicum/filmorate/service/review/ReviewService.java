@@ -58,11 +58,11 @@ public class ReviewService {
     public ReviewDto updateReview(Review newReview) {
         Review oldReview = reviewRepository.findById(newReview.getReviewId())
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден с id: " + newReview.getReviewId()));
-        oldReview.setContent(newReview.getContent());
-        oldReview.setIsPositive(newReview.getIsPositive());
+        if (newReview.getContent() != null) oldReview.setContent(newReview.getContent());
+        if (newReview.getIsPositive() != null) oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);
         eventService.addEvent(oldReview.getUserId(), oldReview.getReviewId(), EventType.REVIEW, OperationType.UPDATE);
-        return ReviewMapper.mapToReviewDto(oldReview);
+        return getReviewById(oldReview.getReviewId());
     }
 
     //DELETE /reviews/{id}
