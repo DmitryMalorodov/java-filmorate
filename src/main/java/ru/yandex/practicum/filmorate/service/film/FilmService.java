@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -104,29 +104,8 @@ public class FilmService {
         log.info("Поиск фильма по фразе '{}' ", query);
         if (query.isBlank()) return getFilms();
 
-        String userQuery = "%" + query.toLowerCase() + "%";
 
-        StringBuilder sql = new StringBuilder("SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
-                "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
-                "FROM films f " +
-                "LEFT JOIN mpa m ON f.mpa_id = m.id " +
-                "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-                "LEFT JOIN genres g ON fg.genre_id = g.id " +
-                "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
-                "LEFT JOIN directors d ON fd.director_id = d.id ");
-
-        StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
-
-        List<String> params = new ArrayList<>();
-        params.add(userQuery);
-
-        if (searchType.contains("director")) {
-            whereQuery.append("OR LOWER(d.name) LIKE ? ");
-            params.add(userQuery);
-        }
-
-        sql.append(whereQuery);
-        return filmRepository.getFilmsByRequestParam(sql.toString(), params.toArray())
+        return filmRepository.getFilmsByRequestParam(query, searchType)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();

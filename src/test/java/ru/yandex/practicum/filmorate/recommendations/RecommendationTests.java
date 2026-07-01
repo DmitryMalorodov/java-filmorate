@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.yandex.practicum.filmorate.films.FilmData.film;
 import static ru.yandex.practicum.filmorate.users.UserData.*;
 
-@DisplayName("Тест рекомендованных фильмов")
+@DisplayName("Проверка рекомендованных фильмов")
 public class RecommendationTests extends MainTest {
 
     static final String FILMS_ID_LIKE_USER_ID = "/films/{id}/like/{userId}";
