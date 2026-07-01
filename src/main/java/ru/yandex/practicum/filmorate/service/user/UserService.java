@@ -17,10 +17,7 @@ import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.event.EventService;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -120,6 +117,12 @@ public class UserService {
         log.info("Начал поиск рекомедаций");
         Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);
         Map<Long, Set<Long>> mindedUsers = userRepository.getMindedUsers(idUser);
+
+        if (mindedUsers == null || mindedUsers.isEmpty()) {
+            log.info("Нет пользователей с похожими вкусами. Рекомендации пусты.");
+            return List.of();
+        }
+
         List<Long> recommendedFilms;
         log.info("Получен список лайкнутых фильмов пользователем {}", userLikeList);
         log.info("Получен список пользователей единомышлиников {}", mindedUsers);
@@ -132,6 +135,11 @@ public class UserService {
                 .map(Map.Entry::getKey)
                 .toList();
         log.info("Нашел рекомендации {}", recommendedFilms);
+
+        if (recommendedFilms.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return filmRepository.getRecommendationsFilmsById(recommendedFilms)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
