@@ -49,7 +49,7 @@ public class ReviewRepository extends BaseRepository<Review> {
 
     public List<Review> findByFilmId(Long filmId, int count) {
         if (filmId == null) {
-            return findMany(FIND_ALL_REVIEW);
+            return findMany(FIND_ALL_REVIEW + " ORDER BY useful DESC LIMIT ? ", count);
         }
         return findMany(FIND_BY_FILM, filmId, count);
     }
