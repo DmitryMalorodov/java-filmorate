@@ -6,17 +6,18 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.FriendshipRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dto.EventDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -27,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final FilmRepository filmRepository;
+    private final EventService eventService;
 
     public UserDto getUserById(Long userId) {
         return userRepository.findById(userId)
@@ -67,6 +69,7 @@ public class UserService {
         getUserById(friendId);
         log.info("Добавление в друзья пользователей с id - {}, {}", userId, friendId);
         friendshipRepository.addFriend(userId, friendId);
+        eventService.addEvent(userId, friendId, EventType.FRIEND, OperationType.ADD);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -75,6 +78,7 @@ public class UserService {
         getUserById(friendId);
         log.info("Удаление из друзей пользователей с id - {}, {}", userId, friendId);
         friendshipRepository.deleteFriend(userId, friendId);
+        eventService.addEvent(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
     }
 
     public Collection<UserDto> getCommonFriendsList(Long userId, Long otherUserId) {
@@ -109,11 +113,16 @@ public class UserService {
         }
     }
 
-
     public List<FilmDto> getRecommendations(Long idUser) {
         log.info("Начал поиск рекомедаций");
         Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);
         Map<Long, Set<Long>> mindedUsers = userRepository.getMindedUsers(idUser);
+
+        if (mindedUsers == null || mindedUsers.isEmpty()) {
+            log.info("Нет пользователей с похожими вкусами. Рекомендации пусты.");
+            return List.of();
+        }
+
         List<Long> recommendedFilms;
         log.info("Получен список лайкнутых фильмов пользователем {}", userLikeList);
         log.info("Получен список пользователей единомышлиников {}", mindedUsers);
@@ -126,9 +135,19 @@ public class UserService {
                 .map(Map.Entry::getKey)
                 .toList();
         log.info("Нашел рекомендации {}", recommendedFilms);
+
+        if (recommendedFilms.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return filmRepository.getRecommendationsFilmsById(recommendedFilms)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
+    }
+
+    public Collection<EventDto> getEventsByUserId(Long userId) {
+        getUserById(userId);
+        return eventService.getEventsByUserId(userId);
     }
 }

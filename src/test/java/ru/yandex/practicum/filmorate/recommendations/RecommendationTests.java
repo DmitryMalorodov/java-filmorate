@@ -17,7 +17,7 @@ public class RecommendationTests extends MainTest {
     static final String REST_REQUEST = "/users/{id}/recommendations";
 
     @Test
-    public void testRecomendatetFilms() throws Exception {
+    public void testRecommendFilms() throws Exception {
         Long targetUserId = prepareTestData();
 
         mockMvc.perform(get(REST_REQUEST, targetUserId))

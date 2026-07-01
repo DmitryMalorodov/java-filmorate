@@ -56,13 +56,13 @@ public class FilmRepository extends BaseRepository<Film> {
             " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
 
 
-    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.*, COUNT(fl.user_id) AS likes_count " +
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.id " +
             "FROM films f " +
             "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
     private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
     private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
-            "ORDER BY likes_count DESC, f.id ASC " +
+            "ORDER BY COUNT(fl.user_id) DESC, f.id ASC " +
             "LIMIT ?";
     public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
             " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
@@ -132,26 +132,7 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> findAll() {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new HashMap<>();
-
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                //если genreId не null то добавляем его в сет
-                setGenre(rs, film);
-                setDirector(rs, film);
-            }
-
-            return new ArrayList<>(filmMap.values());
-        };
-
-        return findMany(FIND_ALL_QUERY, extractor);
+        return findMany(FIND_ALL_QUERY, getExtractor());
     }
 
     private void setGenre(ResultSet rs, Film film) throws SQLException {
@@ -192,11 +173,21 @@ public class FilmRepository extends BaseRepository<Film> {
         }
     }
 
-    public List<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
+    public Set<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
         List<Integer> params = new ArrayList<>();
         String sqlQuery = getPopularFilmsSqlQuery(genreId, year, params);
         params.add(limit);
-        return findMany(sqlQuery, params.toArray());
+
+        //получение списка id популярных фильмов
+        List<Integer> popularFilmIds = jdbc.queryForList(sqlQuery, Integer.class, params.toArray());
+        if (popularFilmIds.isEmpty()) return Collections.emptySet();
+
+        //получение всей информации для популярных фильмов
+        String inSql = String.join(",", Collections.nCopies(popularFilmIds.size(), "?"));
+        String finalQuery = FIND_ALL_QUERY + " WHERE f.id IN (" + inSql + ") " +
+                "ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC, f.id ASC";
+
+        return new LinkedHashSet<>(findMany(finalQuery, getExtractor(), popularFilmIds.toArray()));
     }
 
     private String getPopularFilmsSqlQuery(Integer genreId, Integer year, List<Integer> params) {
@@ -271,8 +262,10 @@ public class FilmRepository extends BaseRepository<Film> {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             //удаление всех жанров фильма
             update(DELETE_GENRES_QUERY, film.getId());
-            //сохранение жанров в бд
             setGenresToDB(film);
+//            if (!film.getGenres().isEmpty()) {
+//                setGenresToDB(film);
+//            }
         }
 
         if (film.getDirectors() != null) {
@@ -320,6 +313,7 @@ public class FilmRepository extends BaseRepository<Film> {
         String userQuery = "%" + query.toLowerCase() + "%";
 
         StringBuilder sql = new StringBuilder(FIND_ALL_QUERY);
+        sql.append("LEFT JOIN film_likes fl ON f.id = fl.film_id ");
 
         StringBuilder whereQuery = new StringBuilder("WHERE ");
 
@@ -342,23 +336,10 @@ public class FilmRepository extends BaseRepository<Film> {
         }
 
         sql.append(whereQuery);
+        sql.append("GROUP BY f.id, fg.genre_id, fd.director_id ");
+        sql.append("ORDER BY COUNT(fl.user_id) DESC");
 
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                setGenre(rs, film);
-                setDirector(rs, film);
-            }
-            return new ArrayList<>(filmMap.values());
-        };
-        return findMany(sql.toString(), extractor, params.toArray());
+        return findMany(sql.toString(), getExtractor(), params.toArray());
     }
 
     public void deleteFilm(Long filmId) {
@@ -367,8 +348,31 @@ public class FilmRepository extends BaseRepository<Film> {
 
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
+        return findMany(SEARCH_COMMON_FILMS, getExtractor(), userId, friendId);
+    }
+
+    public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);
+
+        return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, getExtractor());
+    }
+
+    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, getExtractor(), directorId);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, getExtractor(), directorId);
+    }
+
+    private ResultSetExtractor<List<Film>> getExtractor() {
+        return rs -> {
             Map<Long, Film> filmMap = new LinkedHashMap<>();
+
             while (rs.next()) {
                 long filmId = rs.getLong("film_id");
                 Film film = filmMap.get(filmId);
@@ -379,74 +383,10 @@ public class FilmRepository extends BaseRepository<Film> {
                 }
                 //если genreId не null то добавляем его в сет
                 setGenre(rs, film);
-            }
-            return new ArrayList<>(filmMap.values());
-        };
-        return findMany(SEARCH_COMMON_FILMS, extractor, userId, friendId);
-    }
-
-    public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);
-
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new HashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                setGenre(rs, film);
-            }
-
-            return new ArrayList<>(filmMap.values());
-        };
-
-        return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, extractor);
-    }
-
-    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                setGenre(rs, film);
                 setDirector(rs, film);
             }
+
             return new ArrayList<>(filmMap.values());
         };
-        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, extractor, directorId);
     }
-
-    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
-        ResultSetExtractor<List<Film>> extractor = rs -> {
-            Map<Long, Film> filmMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                Film film = filmMap.get(filmId);
-                if (film == null) {
-                    film = new Film();
-                    setFilmFields(film, filmId, rs);
-                    filmMap.put(filmId, film);
-                }
-                setGenre(rs, film);
-                setDirector(rs, film);
-            }
-            return new ArrayList<>(filmMap.values());
-        };
-        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, extractor, directorId);
-    }
-
 }
