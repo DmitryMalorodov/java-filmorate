@@ -313,6 +313,7 @@ public class FilmRepository extends BaseRepository<Film> {
         String userQuery = "%" + query.toLowerCase() + "%";
 
         StringBuilder sql = new StringBuilder(FIND_ALL_QUERY);
+        sql.append("LEFT JOIN film_likes fl ON f.id = fl.film_id ");
 
         StringBuilder whereQuery = new StringBuilder("WHERE LOWER(f.name) LIKE ? ");
 
@@ -325,6 +326,8 @@ public class FilmRepository extends BaseRepository<Film> {
         }
 
         sql.append(whereQuery);
+        sql.append("GROUP BY f.id, fg.genre_id, fd.director_id ");
+        sql.append("ORDER BY COUNT(fl.user_id) DESC");
 
         return findMany(sql.toString(), getExtractor(), params.toArray());
     }
