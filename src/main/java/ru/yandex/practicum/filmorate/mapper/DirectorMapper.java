@@ -13,11 +13,4 @@ public class DirectorMapper {
         dto.setName(director.getName());
         return dto;
     }
-
-    public static Director mapToDirector(DirectorDto dto) {
-        Director director = new Director();
-        director.setId(dto.getId());
-        director.setName(dto.getName());
-        return director;
-    }
 }
