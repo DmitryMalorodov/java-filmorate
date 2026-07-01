@@ -13,7 +13,7 @@ public class UserRepository extends BaseRepository<User> {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(email, name, login, birthday)" +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, birthday = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, login = ?, birthday = ? WHERE id = ?";
     private static final String COMMON_FRIENDS_QUERY = "SELECT u.* FROM users u " +
             "WHERE u.id IN (" +
             "SELECT friend_id FROM user_friendships WHERE user_id = ? " +
@@ -79,6 +79,7 @@ public class UserRepository extends BaseRepository<User> {
                 UPDATE_QUERY,
                 user.getEmail(),
                 user.getName(),
+                user.getLogin(),
                 user.getBirthday(),
                 user.getId()
         );

@@ -89,7 +89,7 @@ public class GetPopularFilmsTests extends FilmTest {
     void checkGetPopularFilmsDB() throws Exception {
         prepareTestData();
 
-        List<Film> films = filmRepository.getPopularFilms(5, null, null);
+        List<Film> films = filmRepository.getPopularFilms(5, null, null).stream().toList();
         Assertions.assertEquals(3, films.size());
         Assertions.assertEquals(1, films.getFirst().getId());
         Assertions.assertEquals(2, films.get(1).getId());

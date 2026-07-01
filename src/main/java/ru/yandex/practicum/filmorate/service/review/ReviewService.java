@@ -3,13 +3,17 @@ package ru.yandex.practicum.filmorate.service.review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dal.ReviewReactionRepository;
 import ru.yandex.practicum.filmorate.dal.ReviewRepository;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.review.ReactionType;
 import ru.yandex.practicum.filmorate.model.review.Review;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -25,6 +29,7 @@ public class ReviewService {
     private final ReviewReactionRepository reviewReactionRepository;
     private final UserService userService;
     private final FilmService filmService;
+    private final EventService eventService;
 
     //GET /reviews/{id}
     public ReviewDto getReviewById(Long reviewId) {
@@ -44,7 +49,9 @@ public class ReviewService {
     public ReviewDto createReview(Review review) {
         userService.getUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
-        return ReviewMapper.mapToReviewDto(reviewRepository.save(review));
+        ReviewDto reviewDto = ReviewMapper.mapToReviewDto(reviewRepository.save(review));
+        eventService.addEvent(reviewDto.getUserId(), reviewDto.getReviewId(), EventType.REVIEW, OperationType.ADD);
+        return reviewDto;
     }
 
     //PUT /reviews
@@ -54,12 +61,15 @@ public class ReviewService {
         oldReview.setContent(newReview.getContent());
         oldReview.setIsPositive(newReview.getIsPositive());
         reviewRepository.update(oldReview);
+        eventService.addEvent(oldReview.getUserId(), oldReview.getReviewId(), EventType.REVIEW, OperationType.UPDATE);
         return ReviewMapper.mapToReviewDto(oldReview);
     }
 
     //DELETE /reviews/{id}
+    @Transactional
     public void deleteReview(Long reviewId) {
-        getReviewById(reviewId);
+        ReviewDto review = getReviewById(reviewId);
+        eventService.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.REMOVE);
         reviewRepository.delete(reviewId);
     }
 
@@ -94,10 +104,7 @@ public class ReviewService {
 
         if (existingReactionOpt.isPresent()) {
             String existing = existingReactionOpt.get();
-
-            if (existing.equals(ReactionType.DISLIKE.name())) {
-                return;
-            } else if (existing.equals(ReactionType.LIKE.name())) {
+            if (existing.equals(ReactionType.LIKE.name())) {
                 reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
                 reviewRepository.updateCounters(reviewId, -1, +1);
             }

@@ -20,17 +20,4 @@ public class ReviewMapper {
                 .dislikesCount(review.getDislikesCount())
                 .build();
     }
-
-    public static Review mapToReview(ReviewDto reviewDto) {
-        return Review.builder()
-                .reviewId(reviewDto.getReviewId())
-                .content(reviewDto.getContent())
-                .isPositive(reviewDto.getIsPositive())
-                .userId(reviewDto.getUserId())
-                .filmId(reviewDto.getFilmId())
-                .useful(reviewDto.getUseful())
-                .likesCount(reviewDto.getLikesCount())
-                .dislikesCount(reviewDto.getDislikesCount())
-                .build();
-    }
 }

@@ -1,3 +1,4 @@
+DELETE FROM user_events;
 DELETE FROM film_genres;
 DELETE FROM film_directors;
 DELETE FROM films;
@@ -10,6 +11,8 @@ ALTER TABLE mpa ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE users ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE films ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE genres ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE user_events ALTER COLUMN event_id RESTART WITH 1;
+ALTER TABLE directors ALTER COLUMN id RESTART WITH 1;
 
 INSERT INTO mpa (name) VALUES ('G');
 INSERT INTO mpa (name) VALUES ('PG');
@@ -23,8 +26,3 @@ INSERT INTO genres (name) VALUES ('Мультфильм');
 INSERT INTO genres (name) VALUES ('Триллер');
 INSERT INTO genres (name) VALUES ('Документальный');
 INSERT INTO genres (name) VALUES ('Боевик');
-
-INSERT INTO directors (name) VALUES ('Режиссёр1');
-INSERT INTO directors (name) VALUES ('Кристофер Нолан');
-INSERT INTO directors (name) VALUES ('Квентин Тарантино');
-INSERT INTO directors (name) VALUES ('Мартин Скорсезе');
