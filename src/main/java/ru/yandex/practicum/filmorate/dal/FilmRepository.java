@@ -258,18 +258,15 @@ public class FilmRepository extends BaseRepository<Film> {
                 film.getId()
         );
 
-        //если список жанров не пустой - сохраняем в бд
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            //удаление всех жанров фильма
-            update(DELETE_GENRES_QUERY, film.getId());
-            setGenresToDB(film);
-//            if (!film.getGenres().isEmpty()) {
-//                setGenresToDB(film);
-//            }
+        if (film.getGenres() != null) {
+            delete(DELETE_GENRES_QUERY, film.getId());
+            if (!film.getGenres().isEmpty()) {
+                setGenresToDB(film);
+            }
         }
 
         if (film.getDirectors() != null) {
-            jdbc.update(DELETE_DIRECTORS, film.getId());
+            delete(DELETE_DIRECTORS, film.getId());
             if (!film.getDirectors().isEmpty()) {
                 setDirectorsToDB(film);
             }

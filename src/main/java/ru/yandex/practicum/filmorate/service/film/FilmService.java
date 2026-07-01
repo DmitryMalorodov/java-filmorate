@@ -70,6 +70,7 @@ public class FilmService {
         if (newFilm.getGenres() != null) oldFilm.setGenres(newFilm.getGenres());
         if (newFilm.getDirectors() != null) oldFilm.setDirectors(newFilm.getDirectors());
         filmRepository.update(oldFilm);
+
         log.info("Отредактированный фильм {}", oldFilm);
         return FilmMapper.mapToFilmDto(oldFilm);
     }
