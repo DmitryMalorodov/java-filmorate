@@ -56,15 +56,26 @@ public class FilmRepository extends BaseRepository<Film> {
             " ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC";
 
 
-    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.id " +
+    private static final String POPULAR_FILMS_BASE_QUERY = "SELECT f.id AS film_id, f.name, f.description, f.release_date, f.duration, " +
+            "f.mpa_id, m.name AS mpa_name, fg.genre_id, g.name AS genre_name, fd.director_id, d.name AS director_name " +
+            "FROM (%s) pf " +
+            "INNER JOIN films f ON pf.id = f.id " +
+            "LEFT JOIN mpa m ON f.mpa_id = m.id " +
+            "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+            "LEFT JOIN genres g ON fg.genre_id = g.id " +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+            "LEFT JOIN directors d ON fd.director_id = d.id " +
+            "ORDER BY pf.likes_count DESC, f.id ASC";
+    private static final String POPULAR_FILMS_ID_QUERY = "SELECT f.id, COUNT(fl.user_id) AS likes_count " +
             "FROM films f " +
             "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
     private static final String JOIN_FILM_GENRES_QUERY = "LEFT JOIN film_genres fg ON f.id = fg.film_id ";
     private static final String EXTRACT_YEAR_QUERY = "EXTRACT(YEAR FROM f.release_date) = ? ";
     private static final String GROUP_ORDER_LIMIT_QUERY = "GROUP BY f.id " +
-            "ORDER BY COUNT(fl.user_id) DESC, f.id ASC " +
+            "ORDER BY likes_count DESC, f.id ASC " +
             "LIMIT ?";
-    public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
+
+    public static final String GET_RECOMMENDATION_FILMS = FIND_ALL_QUERY +
             " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
             " WHERE f.id IN (:filmIds)" +
             " GROUP BY f.id, fg.genre_id, fd.director_id" +
@@ -175,51 +186,44 @@ public class FilmRepository extends BaseRepository<Film> {
 
     public Set<Film> getPopularFilms(Integer limit, Integer genreId, Integer year) {
         List<Integer> params = new ArrayList<>();
-        String sqlQuery = getPopularFilmsSqlQuery(genreId, year, params);
-        params.add(limit);
-
-        //получение списка id популярных фильмов
-        List<Integer> popularFilmIds = jdbc.queryForList(sqlQuery, Integer.class, params.toArray());
-        if (popularFilmIds.isEmpty()) return Collections.emptySet();
-
-        //получение всей информации для популярных фильмов
-        String inSql = String.join(",", Collections.nCopies(popularFilmIds.size(), "?"));
-        String finalQuery = FIND_ALL_QUERY + " WHERE f.id IN (" + inSql + ") " +
-                "ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) DESC, f.id ASC";
-
-        return new LinkedHashSet<>(findMany(finalQuery, getExtractor(), popularFilmIds.toArray()));
+        String sqlQuery = getPopularFilmsSqlQuery(limit, genreId, year, params);
+        return new LinkedHashSet<>(findMany(sqlQuery, getExtractor(), params.toArray()));
     }
 
-    private String getPopularFilmsSqlQuery(Integer genreId, Integer year, List<Integer> params) {
-        StringBuilder sqlQuery = new StringBuilder(POPULAR_FILMS_BASE_QUERY);
+    private String getPopularFilmsSqlQuery(Integer limit, Integer genreId, Integer year, List<Integer> params) {
+        //1. Формируем вложенный запрос для поиска только ID популярных фильмов
+        StringBuilder subQuery = new StringBuilder();
+        subQuery.append(POPULAR_FILMS_ID_QUERY);
 
-        boolean hasGenre = genreId != null;
         boolean hasYear = year != null;
+        boolean hasGenre = genreId != null;
 
         //если жанр передан, то присоединяем таблицу связей жанров с фильмами
         if (hasGenre) {
-            sqlQuery.append(JOIN_FILM_GENRES_QUERY);
+            subQuery.append(JOIN_FILM_GENRES_QUERY);
         }
 
         //если хотя бы один параметр передан (год/жанр) то добавляем в запрос фильтрацию
         if (hasYear || hasGenre) {
-            sqlQuery.append("WHERE ");
+            subQuery.append("WHERE ");
             if (hasYear) {
-                sqlQuery.append(EXTRACT_YEAR_QUERY);
+                subQuery.append(EXTRACT_YEAR_QUERY);
                 params.add(year);
             }
             if (hasGenre) {
                 if (hasYear) {
-                    sqlQuery.append("AND ");
+                    subQuery.append("AND ");
                 }
-                sqlQuery.append("fg.genre_id = ? ");
+                subQuery.append("fg.genre_id = ? ");
                 params.add(genreId);
             }
         }
 
-        sqlQuery.append(GROUP_ORDER_LIMIT_QUERY);
+        subQuery.append(GROUP_ORDER_LIMIT_QUERY);
+        params.add(limit);
 
-        return sqlQuery.toString();
+        //2. Собираем финальный query, где в POPULAR_FILMS_BASE_QUERY используем сформированный подзапрос выше (subQuery)
+        return String.format(POPULAR_FILMS_BASE_QUERY, subQuery);
     }
 
     @Transactional
@@ -349,13 +353,8 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);
-
-        return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, getExtractor());
+        return npJdbc.query(GET_RECOMMENDATION_FILMS, parameters, getExtractor());
     }
 
     public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
