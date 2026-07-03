@@ -75,7 +75,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "ORDER BY likes_count DESC, f.id ASC " +
             "LIMIT ?";
 
-    public static final String GET_RECOMMENDATE_FILMS = FIND_ALL_QUERY +
+    public static final String GET_RECOMMENDATION_FILMS = FIND_ALL_QUERY +
             " LEFT JOIN film_likes fl ON  f.id = fl.film_id " +
             " WHERE f.id IN (:filmIds)" +
             " GROUP BY f.id, fg.genre_id, fd.director_id" +
@@ -353,13 +353,8 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> getRecommendationsFilmsById(Collection<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         MapSqlParameterSource parameters = new MapSqlParameterSource("filmIds", ids);
-
-        return npJdbc.query(GET_RECOMMENDATE_FILMS, parameters, getExtractor());
+        return npJdbc.query(GET_RECOMMENDATION_FILMS, parameters, getExtractor());
     }
 
     public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {

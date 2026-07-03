@@ -32,15 +32,20 @@ public class UserRepository extends BaseRepository<User> {
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
-    public static final String GET_LIKE_LIST_BY_USER = "SELECT film_id FROM film_likes  " +
-            "WHERE user_id = ?";
-    private static final String GET_LIST_MINDED_USERS = "SELECT user_id, film_id " +
-            "FROM film_likes " +
-            "WHERE user_id IN ( " +
-            "    SELECT DISTINCT user_id " +
-            "    FROM film_likes " +
-            "    WHERE film_id IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
-            "    AND user_id <> ? );";
+    private static final String GET_RECOMMENDED_FILM_IDS = "SELECT fl.film_id " +
+                    "FROM film_likes fl " +
+                    "WHERE fl.user_id IN ( " +
+                    "    SELECT sim.user_id " +
+                    "    FROM film_likes sim " +
+                    "    INNER JOIN film_likes target ON sim.film_id = target.film_id " +
+                    "    WHERE target.user_id = ? AND sim.user_id <> ? " +
+                    "    GROUP BY sim.user_id " +
+                    "    ORDER BY COUNT(sim.film_id) DESC " +
+                    "    LIMIT 1 " +
+                    ") " +
+                    "AND fl.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+                    "GROUP BY fl.film_id " +
+                    "ORDER BY COUNT(fl.user_id) DESC";
 
     public UserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -90,25 +95,8 @@ public class UserRepository extends BaseRepository<User> {
         delete(DELETE_USER_QUERY, userId);
     }
 
-    public Set<Long> getIdFilmsByUserId(Long idUser) {
-        return jdbc.query(GET_LIKE_LIST_BY_USER, rs -> {
-            Set<Long> idFilms = new HashSet<>();
-            while (rs.next()) {
-                idFilms.add(rs.getLong("film_id"));
-            }
-            return idFilms;
-        }, idUser);
-    }
-
-    public Map<Long, Set<Long>> getMindedUsers(Long userId) {
-        return jdbc.query(GET_LIST_MINDED_USERS, rs -> {
-            Map<Long, Set<Long>> idUsers = new HashMap<>();
-            while (rs.next()) {
-                idUsers.computeIfAbsent(rs.getLong("user_id"),
-                        k -> new HashSet<>()).add(rs.getLong("film_id"));
-            }
-            return idUsers;
-        }, userId, userId);
+    public List<Long> getRecommendedFilmIds(Long userId) {
+        return jdbc.queryForList(GET_RECOMMENDED_FILM_IDS, Long.class, userId, userId, userId);
     }
 
 }

@@ -18,8 +18,6 @@ import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.event.EventService;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -114,32 +112,17 @@ public class UserService {
     }
 
     public List<FilmDto> getRecommendations(Long idUser) {
-        log.info("Начал поиск рекомедаций");
-        Set<Long> userLikeList = userRepository.getIdFilmsByUserId(idUser);
-        Map<Long, Set<Long>> mindedUsers = userRepository.getMindedUsers(idUser);
+        log.info("Начал поиск рекомендаций для пользователя {}", idUser);
 
-        if (mindedUsers == null || mindedUsers.isEmpty()) {
+        //отсортированный список ID фильмов для рекомендации
+        List<Long> recommendedFilms = userRepository.getRecommendedFilmIds(idUser);
+
+        if (recommendedFilms.isEmpty()) {
             log.info("Нет пользователей с похожими вкусами. Рекомендации пусты.");
             return List.of();
         }
 
-        List<Long> recommendedFilms;
-        log.info("Получен список лайкнутых фильмов пользователем {}", userLikeList);
-        log.info("Получен список пользователей единомышлиников {}", mindedUsers);
-        recommendedFilms = mindedUsers.values().stream()
-                .flatMap(Set::stream)
-                .filter(filmId -> !userLikeList.contains(filmId))
-                .collect(Collectors.groupingBy(filmId -> filmId, Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
-                .toList();
-        log.info("Нашел рекомендации {}", recommendedFilms);
-
-        if (recommendedFilms.isEmpty()) {
-            return Collections.emptyList();
-        }
-
+        //получаем полную информацию о фильмах
         return filmRepository.getRecommendationsFilmsById(recommendedFilms)
                 .stream()
                 .map(FilmMapper::mapToFilmDto)
