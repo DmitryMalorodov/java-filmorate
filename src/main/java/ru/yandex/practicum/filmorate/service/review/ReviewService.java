@@ -74,71 +74,58 @@ public class ReviewService {
 
     // PUT /reviews/{id}/like/{userId}
     public void addLike(Long reviewId, Long userId) {
-        getReviewById(reviewId);
-        userService.getUserById(userId);
-
-        reviewReactionRepository.getReactionType(reviewId, userId)
-                .ifPresentOrElse(
-                        reaction -> {
-                            if (reaction.equals(ReactionType.LIKE.name())) {
-                                return;
-                            } else if (reaction.equals(ReactionType.DISLIKE.name())) {
-                                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.LIKE);
-                                reviewRepository.updateCounters(reviewId, +1, -1);  // +1 like, -1 dislike
-                            }
-                        },
-                        () -> {
-                            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.LIKE);
-                            reviewRepository.updateCounters(reviewId, +1, 0);
-                        }
-                );
+        addReaction(reviewId, userId, ReactionType.LIKE);
     }
 
     // PUT /reviews/{id}/dislike/{userId}
     public void addDislike(Long reviewId, Long userId) {
+        addReaction(reviewId, userId, ReactionType.DISLIKE);
+    }
+
+    // DELETE /reviews/{id}/like/{userId}
+    public void removeLike(Long reviewId, Long userId) {
+        removeReaction(reviewId, userId, ReactionType.LIKE);
+    }
+
+    // DELETE /reviews/{id}/dislike/{userId}
+    public void removeDislike(Long reviewId, Long userId) {
+        removeReaction(reviewId, userId, ReactionType.DISLIKE);
+    }
+
+
+    private void addReaction(Long reviewId, Long userId, ReactionType type) {
         getReviewById(reviewId);
         userService.getUserById(userId);
+
+        ReactionType opposite = type == ReactionType.LIKE ? ReactionType.DISLIKE : ReactionType.LIKE;
+        int typeDelta = type == ReactionType.LIKE ? +1 : -1;
 
         reviewReactionRepository.getReactionType(reviewId, userId)
                 .ifPresentOrElse(
                         reaction -> {
-                            if (reaction.equals(ReactionType.DISLIKE.name())) {
-                                return;
-                            } else if (reaction.equals(ReactionType.LIKE.name())) {
-                                reviewReactionRepository.updateReaction(reviewId, userId, ReactionType.DISLIKE);
-                                reviewRepository.updateCounters(reviewId, -1, +1);
+                            if (reaction.equals(opposite.name())) {
+                                reviewReactionRepository.updateReaction(reviewId, userId, type);
+                                reviewRepository.updateCounters(reviewId, typeDelta, -typeDelta);
                             }
                         },
                         () -> {
-                            reviewReactionRepository.addReaction(reviewId, userId, ReactionType.DISLIKE);
-                            reviewRepository.updateCounters(reviewId, 0, +1);
+                            reviewReactionRepository.addReaction(reviewId, userId, type);
+                            reviewRepository.updateCounters(reviewId, typeDelta, 0);
                         }
                 );
     }
 
-    //DELETE /reviews/{id}/like/{userId}
-    public void removeLike(Long reviewId, Long userId) {
+    private void removeReaction(Long reviewId, Long userId, ReactionType type) {
         getReviewById(reviewId);
         userService.getUserById(userId);
 
-        reviewReactionRepository.getReactionType(reviewId, userId)
-                .filter(reaction -> reaction.equals(ReactionType.LIKE.name()))
-                .ifPresent(reaction -> {
-                    reviewReactionRepository.removeReaction(reviewId, userId);
-                    reviewRepository.updateCounters(reviewId, -1, 0);
-                });
-    }
-
-    //DELETE /reviews/{id}/dislike/{userId}
-    public void removeDislike(Long reviewId, Long userId) {
-        getReviewById(reviewId);
-        userService.getUserById(userId);
+        int typeDelta = type == ReactionType.LIKE ? -1 : +1;
 
         reviewReactionRepository.getReactionType(reviewId, userId)
-                .filter(reaction -> reaction.equals(ReactionType.DISLIKE.name()))
+                .filter(reaction -> reaction.equals(type.name()))
                 .ifPresent(reaction -> {
                     reviewReactionRepository.removeReaction(reviewId, userId);
-                    reviewRepository.updateCounters(reviewId, 0, -1);
+                    reviewRepository.updateCounters(reviewId, typeDelta, 0);
                 });
     }
 }
