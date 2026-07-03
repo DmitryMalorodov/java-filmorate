@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ValidationException;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -55,7 +57,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<FilmDto> getPopularFilms(
-            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count,
+            @Positive(message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count,
             @RequestParam(required = false) final Integer genreId,
             @RequestParam(required = false) final Integer year) {
         return filmService.getMostPopularFilms(count, genreId, year);
