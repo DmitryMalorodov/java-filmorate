@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.event.EventType;
 import ru.yandex.practicum.filmorate.model.event.OperationType;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
+import ru.yandex.practicum.filmorate.model.sort.SortBy;
 import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
@@ -123,9 +124,11 @@ public class FilmService {
                 .toList();
     }
 
-    public List<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+    public List<FilmDto> getFilmsByDirector(Long directorId, SortBy sortBy) {
         directorService.findById(directorId);
-        List<Film> films = sortBy.equalsIgnoreCase("year") ? filmRepository.getFilmsByDirectorSortedByYear(directorId) : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
+        List<Film> films = sortBy == SortBy.year
+                ? filmRepository.getFilmsByDirectorSortedByYear(directorId)
+                : filmRepository.getFilmsByDirectorSortedByLikes(directorId);
 
         return films.stream().map(FilmMapper::mapToFilmDto).toList();
     }

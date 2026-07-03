@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class Director {
     private Long id;
 
-    @NotNull(message = "Имя режиссёра должно быть указано")
     @NotBlank(message = "Имя режиссёра не может быть пустым")
     private String name;
 }
