@@ -12,7 +12,8 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.constant.message.UserValidationMessages.*;
-import static ru.yandex.practicum.filmorate.users.UserData.*;
+import static ru.yandex.practicum.filmorate.users.UserData.user;
+import static ru.yandex.practicum.filmorate.users.UserData.user2;
 
 @DisplayName("Проверка изменения пользователя")
 public class PutUserTests extends UserTest {

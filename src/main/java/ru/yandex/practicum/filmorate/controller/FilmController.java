@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -8,9 +8,11 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.film.SortBy;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.NEGATIVE_LIMIT_MESSAGE;
 
@@ -53,7 +55,34 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<FilmDto> getPopularFilms(
-            @Min(value = 0, message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count) {
-        return filmService.getMostPopularFilmsByLikes(count);
+            @Positive(message = NEGATIVE_LIMIT_MESSAGE) @RequestParam(defaultValue = "10") final Integer count,
+            @RequestParam(required = false) final Integer genreId,
+            @RequestParam(required = false) final Integer year) {
+        return filmService.getMostPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/search")
+    public Collection<FilmDto> findFilms(@RequestParam final String query,
+                                         @RequestParam(name = "by") final List<String> params
+    ) {
+        return filmService.getFilmByRequestParam(query, params);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable final Long id) {
+        filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/common")
+    public Collection<FilmDto> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<FilmDto> getFilmsByDirector(@PathVariable Long directorId,
+                                                  @RequestParam(defaultValue = "likes") SortBy sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 }

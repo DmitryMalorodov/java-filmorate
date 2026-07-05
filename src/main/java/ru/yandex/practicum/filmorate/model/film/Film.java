@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model.film;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeDate;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
+import ru.yandex.practicum.filmorate.model.director.Director;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -41,5 +43,10 @@ public class Film {
     private Mpa mpa;
 
     @Builder.Default
+    @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Genre> genres = new LinkedHashSet<>();
+
+    @Builder.Default
+    @JsonDeserialize(as = LinkedHashSet.class)
+    private Set<Director> directors = new LinkedHashSet<>();
 }

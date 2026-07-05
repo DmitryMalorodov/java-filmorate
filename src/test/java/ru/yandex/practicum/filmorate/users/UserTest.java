@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.MainTest;
-
 import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
@@ -19,7 +18,7 @@ public class UserTest extends MainTest {
     static final String USERS_ID = "/users/{id}";
     static final String USERS_ID_FRIENDS_COMMON_OTHER_ID = "/users/{id}/friends/common/{otherUserId}";
     static final String USERS_ID_FRIENDS = "/users/{id}/friends";
-    static final String USERS_ID_FRIENDS_FRIEND_ID = "/users/{id}/friends/{friendId}";
+    public static final String USERS_ID_FRIENDS_FRIEND_ID = "/users/{id}/friends/{friendId}";
 
     final UserRepository userRepository;
 

@@ -5,8 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.user.User;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class UserRepository extends BaseRepository<User> {
@@ -14,7 +13,7 @@ public class UserRepository extends BaseRepository<User> {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(email, name, login, birthday)" +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, birthday = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, login = ?, birthday = ? WHERE id = ?";
     private static final String COMMON_FRIENDS_QUERY = "SELECT u.* FROM users u " +
             "WHERE u.id IN (" +
             "SELECT friend_id FROM user_friendships WHERE user_id = ? " +
@@ -32,6 +31,21 @@ public class UserRepository extends BaseRepository<User> {
             "UNION " +
             "SELECT user_id FROM user_friendships WHERE friend_id = ? AND status = 'CONFIRMED' " +
             ")";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String GET_RECOMMENDED_FILM_IDS = "SELECT fl.film_id " +
+                    "FROM film_likes fl " +
+                    "WHERE fl.user_id IN ( " +
+                    "    SELECT sim.user_id " +
+                    "    FROM film_likes sim " +
+                    "    INNER JOIN film_likes target ON sim.film_id = target.film_id " +
+                    "    WHERE target.user_id = ? AND sim.user_id <> ? " +
+                    "    GROUP BY sim.user_id " +
+                    "    ORDER BY COUNT(sim.film_id) DESC " +
+                    "    LIMIT 1 " +
+                    ") " +
+                    "AND fl.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+                    "GROUP BY fl.film_id " +
+                    "ORDER BY COUNT(fl.user_id) DESC";
 
     public UserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -70,9 +84,19 @@ public class UserRepository extends BaseRepository<User> {
                 UPDATE_QUERY,
                 user.getEmail(),
                 user.getName(),
+                user.getLogin(),
                 user.getBirthday(),
                 user.getId()
         );
         return user;
     }
+
+    public void deleteUser(Long userId) {
+        delete(DELETE_USER_QUERY, userId);
+    }
+
+    public List<Long> getRecommendedFilmIds(Long userId) {
+        return jdbc.queryForList(GET_RECOMMENDED_FILM_IDS, Long.class, userId, userId, userId);
+    }
+
 }

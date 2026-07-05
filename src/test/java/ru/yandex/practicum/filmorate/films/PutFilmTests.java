@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.*;
-import static ru.yandex.practicum.filmorate.constant.message.FilmValidationMessages.DURATION_MUST_BE_POSITIVE_MESSAGE;
 import static ru.yandex.practicum.filmorate.films.FilmData.*;
 
 @DisplayName("Проверка изменения фильмов")

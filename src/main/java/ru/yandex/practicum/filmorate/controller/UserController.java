@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.EventDto;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.marker.OnCreate;
 import ru.yandex.practicum.filmorate.marker.OnUpdate;
@@ -56,5 +58,20 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public Collection<UserDto> getFriendsList(@PathVariable final Long id) {
         return userService.getUserFriendsList(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable final Long id) {
+        userService.deleteUser(id);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public Collection<FilmDto> getRecommendedFilms(@PathVariable Long id) {
+        return userService.getRecommendations(id);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<EventDto> getEventsByUserId(@PathVariable final Long id) {
+        return userService.getEventsByUserId(id);
     }
 }
